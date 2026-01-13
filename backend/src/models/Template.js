@@ -10,7 +10,7 @@ const templateSchema = new mongoose.Schema({
   theme: {
     type: String,
     required: true,
-    enum: ['fln', 'teacher-training', 'infrastructure', 'community', 'custom']
+    enum: ['fln', 'career', 'teacher_dev', 'custom']
   },
   structure: {
     problemStatement: String,
@@ -18,7 +18,7 @@ const templateSchema = new mongoose.Schema({
     activities: [String],
     outcomes: [String]
   },
-  isDefault: {
+  isSystem: {
     type: Boolean,
     default: false
   }

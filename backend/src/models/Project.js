@@ -13,8 +13,13 @@ const projectSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['draft', 'completed'],
+    enum: ['draft', 'in_progress', 'completed'],
     default: 'draft'
+  },
+  version: {
+    type: Number,
+    default: 1
+    // Note: Increment this only on explicit 'Save Version' actions
   },
   template: {
     type: mongoose.Schema.Types.ObjectId,
@@ -22,27 +27,30 @@ const projectSchema = new mongoose.Schema({
   },
   lfaData: {
     context: {
-      problem: String,
-      causes: [String],
-      geography: String
+      problemStatement: String,
+      geography: String,
+      targetGroup: String
     },
     stakeholders: [{
       name: String,
       role: String,
-      interest: String
+      influence: String
     }],
     strategy: {
       goal: String,
-      outcomes: [String],
+      outcomes: [{
+        id: String, // UUID for stable referencing
+        description: String
+      }],
       activities: [{
-        name: String,
+        description: String,
         timeline: String
       }]
     },
     indicators: [{
-      outcome: String,
-      indicator: String,
-      verification: String
+      outcomeId: String, // Links to strategy.outcomes.id
+      metric: String,
+      verificationSource: String
     }]
   },
   createdAt: {

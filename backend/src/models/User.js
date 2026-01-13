@@ -13,10 +13,10 @@ const userSchema = new mongoose.Schema({
     trim: true,
     lowercase: true
   },
-  password: {
+  authProvider: {
     type: String,
     required: true,
-    select: false
+    default: 'local' // Deferring auth logic
   },
   role: {
     type: String,
