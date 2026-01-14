@@ -1,4 +1,4 @@
-const { model, isAiEnabled } = require('../../config/ai');
+const { model, ENABLE_AI } = require('../../config/ai');
 const { buildPrompt } = require('./prompts');
 const crypto = require('crypto');
 
@@ -25,7 +25,7 @@ const MIN_INPUT_LENGTH = 15;
  */
 async function generateSuggestion(userId, context, promptId, input) {
   // 1. GLOBAL SAFETY SWITCH
-  if (!isAiEnabled || !model) {
+  if (!ENABLE_AI || !model) {
     throw { status: 503, message: "AI features are currently disabled." };
   }
 
@@ -55,9 +55,17 @@ async function generateSuggestion(userId, context, promptId, input) {
   const promptText = buildPrompt(promptId, context, input);
 
   try {
+    // ENFORCED DELAY (User Requirement: Minimum 2 seconds)
+    await _delay(2000);
+
     // 6. GEMINI CALL
     const result = await model.generateContent(promptText);
-    const responseText = result.response.text();
+    const response = await result.response;
+    const responseText = response.text();
+
+    if (!responseText) {
+        throw new Error("Empty response from Gemini.");
+    }
 
     // 7. JSON PARSING & VALIDATION
     // We expect strict JSON from the model as per prompt instructions
@@ -73,8 +81,15 @@ async function generateSuggestion(userId, context, promptId, input) {
 
   } catch (error) {
     console.error("AI Service Error:", error);
-    // Map Gemini errors to our standard codes if needed, or rethrow
-    throw { status: 500, message: "AI Processing Failed", details: error.message };
+    
+    // Map Gemini/Network errors to standardized status codes
+    let status = 500;
+    let message = "AI Processing Failed";
+    
+    if (error.message && error.message.includes("429")) status = 429;
+    if (error.message && error.message.includes("Quota")) status = 429;
+    
+    throw { status, message, details: error.message };
   }
 }
 
@@ -105,11 +120,24 @@ function _generateCacheKey(userId, promptId, input) {
 function _parseStrictJSON(text) {
   try {
     // Clean potential markdown code blocks ```json ... ```
-    const cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    let cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    
+    // Sometimes models return "Here is the JSON: { ... }"
+    const jsonStart = cleanText.indexOf('{');
+    const jsonEnd = cleanText.lastIndexOf('}');
+    
+    if (jsonStart !== -1 && jsonEnd !== -1) {
+        cleanText = cleanText.substring(jsonStart, jsonEnd + 1);
+    }
+
     return JSON.parse(cleanText);
   } catch (e) {
     throw { status: 502, message: "AI returned invalid format.", details: text };
   }
+}
+
+function _delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 module.exports = {
