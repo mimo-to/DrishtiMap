@@ -6,6 +6,7 @@ import { useQuestStore } from '../engine/useQuestStore';
 import { engine } from '../engine/QuestEngine';
 import TransparencyPanel from '../../components/ai/TransparencyPanel';
 import { aiService } from '../../services/ai.service';
+import ExportActions from './ExportActions';
 
 const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast }) => {
     const [globalError, setGlobalError] = useState(null);
@@ -110,6 +111,8 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast }) => {
                     isFirst={isFirst}
                     isLast={isLast}
                 />
+
+                <ExportActions />
 
                 {/* PHASE 7.1: TRANSPARENCY PANEL (Read-Only) */}
                 <TransparencyPanel
