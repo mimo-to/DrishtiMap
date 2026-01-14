@@ -42,7 +42,8 @@ app.get('/health', (req, res) => {
 });
 
 // API Routes Placeholder
-// app.use('/api', apiRoutes);
+// API Routes
+app.use('/api', require('./routes/index'));
 
 // Dev-only Auth Test Routes
 if (process.env.NODE_ENV !== 'production') {
