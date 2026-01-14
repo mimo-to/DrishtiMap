@@ -13,19 +13,20 @@ export const ExportService = {
      * @param {string} type - 'pdf' | 'json'
      * @param {Object} projectData - The map of answers (key -> value)
      */
-    exportProject: (type, projectData) => {
+    exportProject: (type, projectData, projectTitle = "Untitled Project") => {
         // 1. EMPTY GUARD
         if (!projectData || Object.keys(projectData).length === 0) {
             return { success: false, error: "Nothing to export yet. Please answer some questions first." };
         }
 
         const dateStr = new Date().toISOString().split('T')[0];
-        const filename = `DrishtiMap_Project_${dateStr}`;
+        const sanitizedTitle = projectTitle.replace(/[^a-z0-9]/gi, '_').substring(0, 30);
+        const filename = `${sanitizedTitle}_${dateStr}`;
 
         if (type === 'json') {
-            return exportToJson(projectData, filename);
+            return exportToJson(projectData, filename, projectTitle);
         } else if (type === 'pdf') {
-            return exportToPdf(projectData, filename);
+            return exportToPdf(projectData, filename, projectTitle);
         } else {
             return { success: false, error: "Invalid export type" };
         }
@@ -34,11 +35,9 @@ export const ExportService = {
 
 /**
  * Internal: Generate JSON
- * Locks key order based on LEVELS config.
  */
-const exportToJson = (projectData, filename) => {
+const exportToJson = (projectData, filename, projectTitle) => {
     try {
-        // Reconstruct data in Strict Order
         const orderedAnswers = {};
         
         LEVELS.forEach(level => {
@@ -51,8 +50,8 @@ const exportToJson = (projectData, filename) => {
 
         const exportObject = {
             meta: {
-                title: "DrishtiMap Project Export",
-                status: "WORK_IN_PROGRESS", // User Requirement
+                title: projectTitle,
+                status: "WORK_IN_PROGRESS",
                 timestamp: new Date().toISOString(),
                 version: "1.0"
             },
@@ -70,9 +69,8 @@ const exportToJson = (projectData, filename) => {
 
 /**
  * Internal: Generate PDF
- * Iterates strictly through LEVELS to ensure correct flow.
  */
-const exportToPdf = (projectData, filename) => {
+const exportToPdf = (projectData, filename, projectTitle) => {
     try {
         const doc = new jsPDF();
         const pageWidth = doc.internal.pageSize.getWidth();
@@ -81,73 +79,86 @@ const exportToPdf = (projectData, filename) => {
         let y = 20;
 
         // --- TITLE PAGE ---
-        doc.setFontSize(24);
+        doc.setFontSize(22);
         doc.setTextColor(33, 37, 41);
-        doc.text("DrishtiMap Project Report", margin, y);
-        y += 15;
+        doc.setFont("helvetica", "bold");
+        doc.text(projectTitle, margin, y);
+        y += 12;
 
         doc.setFontSize(10);
         doc.setTextColor(108, 117, 125);
+        doc.setFont("helvetica", "normal");
         doc.text(`Generated: ${new Date().toLocaleString()}`, margin, y);
-        y += 10;
-        
-        // WIP Label
-        doc.setFontSize(12);
-        doc.setTextColor(220, 53, 69); // Red
-        doc.text("STATUS: WORK IN PROGRESS", margin, y);
         y += 15;
 
+        // Divider
         doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.5);
         doc.line(margin, y, pageWidth - margin, y);
         y += 15;
 
-        // --- SECTIONS (Locked Order) ---
+        // --- CONTENT ---
         LEVELS.forEach((level) => {
             // Level Header
             if (y > pageHeight - 40) { doc.addPage(); y = 20; }
             
-            doc.setFontSize(16);
-            doc.setTextColor(0, 86, 179); // Blue
+            doc.setFontSize(14);
+            doc.setTextColor(0, 86, 179); // Primary Blue
+            doc.setFont("helvetica", "bold");
             doc.text(level.title.toUpperCase(), margin, y);
-            y += 10;
+            
+            // Accent Line under level
+            doc.setDrawColor(0, 86, 179);
+            doc.setLineWidth(0.3);
+            doc.line(margin, y + 2, margin + 40, y + 2);
+            y += 12;
 
             level.questions.forEach((q) => {
                 const answer = projectData[q.id];
                 
-                // Question Label
+                // Question
                 if (y > pageHeight - 30) { doc.addPage(); y = 20; }
                 doc.setFontSize(11);
-                doc.setTextColor(80, 80, 80);
+                doc.setTextColor(60, 60, 60);
                 doc.setFont("helvetica", "bold");
                 doc.text(q.prompt, margin, y);
                 y += 6;
 
-                // Answer Content
+                // Answer
                 doc.setFont("helvetica", "normal");
                 doc.setFontSize(10);
-                doc.setTextColor(0, 0, 0);
-
+                
                 if (answer) {
+                   doc.setTextColor(0, 0, 0);
                    const splitText = doc.splitTextToSize(String(answer), pageWidth - (margin * 2));
+                   // Check if answer fits
+                   if (y + (splitText.length * 5) > pageHeight - 20) {
+                        doc.addPage(); y = 20;
+                   }
                    doc.text(splitText, margin, y);
-                   y += (splitText.length * 5) + 8;
+                   y += (splitText.length * 5) + 10;
                 } else {
-                   doc.setTextColor(150);
+                   doc.setTextColor(160, 160, 160);
+                   doc.setFont("helvetica", "italic");
                    doc.text("[Not completed]", margin, y);
                    y += 14;
                 }
             });
-            
-            y += 5; // Spacing between levels
+            y += 5;
         });
 
-        // --- FOOTER (WIP Note) ---
+        // --- FOOTER ---
         const pageCount = doc.internal.getNumberOfPages();
         for(let i = 1; i <= pageCount; i++) {
             doc.setPage(i);
             doc.setFontSize(8);
             doc.setTextColor(150);
-            doc.text(`Page ${i} of ${pageCount} | WORK IN PROGRESS`, pageWidth - margin - 50, pageHeight - 10);
+            
+            // Left: Branding
+            doc.text("Generated by DrishtiMap", margin, pageHeight - 10);
+            
+            // Right: Page Number
+            doc.text(`Page ${i} of ${pageCount}`, pageWidth - margin - 20, pageHeight - 10);
         }
 
         doc.save(`${filename}.pdf`);

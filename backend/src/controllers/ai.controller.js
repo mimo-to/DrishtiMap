@@ -8,8 +8,8 @@ async function suggest(req, res) {
   try {
     const { context, promptId, input } = req.body;
     
-    // Auth User ID from middleware (Phase 1)
-    const userId = req.user.uid; 
+    // Auth User ID from middleware (Clerk)
+    const { userId } = req.auth; 
 
     if (!promptId || !input) {
       return res.status(400).json({ error: "Missing promptId or input" });

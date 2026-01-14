@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 
 const projectSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+  clerkUserId: {
+    type: String,
+    required: true,
+    index: true
   },
   title: {
     type: String,
@@ -13,8 +13,17 @@ const projectSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['draft', 'in_progress', 'completed'],
+    enum: ['draft', 'in_progress', 'completed', 'archived'],
     default: 'draft'
+  },
+  isDeleted: {
+    type: Boolean,
+    default: false,
+    index: true
+  },
+  deletedAt: {
+    type: Date,
+    default: null
   },
   version: {
     type: Number,
@@ -25,33 +34,26 @@ const projectSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Template'
   },
+  // Rich Metadata & Stats
+  meta: {
+    lastOpenedAt: { type: Date, default: Date.now },
+    completionPercent: { type: Number, default: 0, min: 0, max: 100 },
+    wordCount: { type: Number, default: 0 }
+  },
+  // Activity Tracking
+  activity: {
+    lastSavedAt: { type: Date, default: Date.now },
+    lastAIUsedAt: { type: Date, default: null }
+  },
+  // Flexible content storage
+  data: {
+    type: mongoose.Schema.Types.Mixed,
+    default: {}
+  },
+  // Legacy fields (optional support for structured data if needed, but data is primary now)
   lfaData: {
-    context: {
-      problemStatement: String,
-      geography: String,
-      targetGroup: String
-    },
-    stakeholders: [{
-      name: String,
-      role: String,
-      influence: String
-    }],
-    strategy: {
-      goal: String,
-      outcomes: [{
-        id: String, // UUID for stable referencing
-        description: String
-      }],
-      activities: [{
-        description: String,
-        timeline: String
-      }]
-    },
-    indicators: [{
-      outcomeId: String, // Links to strategy.outcomes.id
-      metric: String,
-      verificationSource: String
-    }]
+    type: mongoose.Schema.Types.Mixed,
+    default: {} 
   },
   createdAt: {
     type: Date,
@@ -62,6 +64,9 @@ const projectSchema = new mongoose.Schema({
     default: Date.now
   }
 });
+
+// Compound Index for efficient dashboard sorting and filtering
+projectSchema.index({ clerkUserId: 1, isDeleted: 1, updatedAt: -1 });
 
 projectSchema.pre('save', function(next) {
   this.updatedAt = Date.now();

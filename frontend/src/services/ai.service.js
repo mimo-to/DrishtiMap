@@ -1,7 +1,9 @@
 const API_URL = 'http://localhost:5000/api/ai';
 
-async function suggest(levelId, input, promptAction = 'suggest') {
-  const token = localStorage.getItem('token');
+async function suggest(levelId, input, token, promptAction = 'suggest') {
+  if (!token) {
+    throw new Error("AI Service requires a valid auth token.");
+  }
   
   // Construct promptId from level (e.g. "problem_statement" -> "problem_statement.suggest")
   // In a real app we might map this more robustly.

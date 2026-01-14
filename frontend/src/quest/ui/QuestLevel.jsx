@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAuth } from '@clerk/clerk-react';
 import QuestionRenderer from './QuestionRenderer';
 import QuestControls from './QuestControls';
 import Card from '../../components/ui/Card';
@@ -8,7 +9,8 @@ import TransparencyPanel from '../../components/ai/TransparencyPanel';
 import { aiService } from '../../services/ai.service';
 import ExportActions from './ExportActions';
 
-const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast }) => {
+const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, saveStatus, isSaving }) => {
+    const { getToken } = useAuth();
     const [globalError, setGlobalError] = useState(null);
     const submitAnswer = useQuestStore((state) => state.submitAnswer);
     const answers = useQuestStore((state) => state.answers);
@@ -42,7 +44,9 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast }) => {
             }
 
             // 2. Call AI Service
-            const result = await aiService.suggest(levelConfig.id, input);
+            // STRICT AUTH: Must pass token explicitly
+            const token = await getToken();
+            const result = await aiService.suggest(levelConfig.id, input, token);
 
             // 3. Update State with Real Data
             setAiState({
@@ -112,7 +116,11 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast }) => {
                     isLast={isLast}
                 />
 
-                <ExportActions />
+                <ExportActions
+                    onSave={onSave}
+                    saveStatus={saveStatus}
+                    isSaving={isSaving}
+                />
 
                 {/* PHASE 7.1: TRANSPARENCY PANEL (Read-Only) */}
                 <TransparencyPanel

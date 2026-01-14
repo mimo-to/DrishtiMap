@@ -46,8 +46,9 @@ app.get('/health', (req, res) => {
 app.use('/api', require('./routes/index'));
 
 // Dev-only Auth Test Routes
+// Dev-only Auth Test Routes
 if (process.env.NODE_ENV !== 'production') {
-  app.use('/api/test-auth', require('./routes/auth-test.routes'));
+  // Removed auth-test routes
 }
 
 // 6. Error Handling
