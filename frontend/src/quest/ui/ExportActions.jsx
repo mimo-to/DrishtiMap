@@ -1,19 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Button from '../../components/ui/Button';
 import { useQuestStore } from '../engine/useQuestStore';
 import { ExportService } from '../../services/export.service';
+import ExportPreview from './ExportPreview';
 
 const ExportActions = () => {
     // Read-only access to full answers state
     const answers = useQuestStore((state) => state.answers);
+    const [previewType, setPreviewType] = useState(null); // 'json' | 'pdf' | null
 
-    const handleExport = (type) => {
-        ExportService.exportProject(type, answers);
+    const handleExportClick = (type) => {
+        // Quick check before opening modal
+        if (!answers || Object.keys(answers).length === 0) {
+            alert("Nothing to export yet. Please answer some questions first.");
+            return;
+        }
+        setPreviewType(type);
     };
-
-    const hasData = Object.keys(answers).length > 0;
-
-    if (!hasData) return null;
 
     return (
         <div className="mt-8 pt-6 border-t border-gray-100">
@@ -23,19 +26,27 @@ const ExportActions = () => {
             <div className="flex gap-3">
                 <Button
                     variant="outline"
-                    onClick={() => handleExport('json')}
+                    onClick={() => handleExportClick('json')}
                     className="text-xs py-1.5 h-8"
                 >
                     📥 Export JSON
                 </Button>
                 <Button
                     variant="outline"
-                    onClick={() => handleExport('pdf')}
+                    onClick={() => handleExportClick('pdf')}
                     className="text-xs py-1.5 h-8 text-red-600 border-red-200 hover:bg-red-50"
                 >
                     📄 Export PDF
                 </Button>
             </div>
+
+            {/* PREVIEW MODAL */}
+            <ExportPreview
+                isOpen={!!previewType}
+                onClose={() => setPreviewType(null)}
+                answers={answers}
+                exportType={previewType}
+            />
         </div>
     );
 };
