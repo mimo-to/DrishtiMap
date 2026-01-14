@@ -1,16 +1,26 @@
 import { Outlet, Link } from 'react-router-dom';
+import { UserButton, useAuth } from '@clerk/clerk-react';
 
 const MainLayout = () => {
+    const { isSignedIn } = useAuth();
+
     return (
         <div className="flex flex-col min-h-screen">
             {/* Header */}
-            <header className="bg-white shadow-sm border-b border-gray-200">
+            <header className="bg-white shadow-sm border-b border-gray-200 relative z-10">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-                    <div className="font-bold text-xl text-indigo-600">DrishtiMap</div>
-                    <nav className="flex space-x-4">
-                        <Link to="/" className="text-gray-600 hover:text-gray-900">Home</Link>
-                        <Link to="/dashboard" className="text-gray-600 hover:text-gray-900">Dashboard</Link>
-                        <Link to="/login" className="text-gray-600 hover:text-gray-900">Login</Link>
+                    <Link to="/" className="font-bold text-xl text-indigo-600 hover:text-indigo-700 transition-colors">
+                        DrishtiMap
+                    </Link>
+                    <nav className="flex items-center space-x-4">
+                        <Link to="/" className="text-gray-600 hover:text-gray-900 text-sm font-medium">Home</Link>
+                        <Link to="/dashboard" className="text-gray-600 hover:text-gray-900 text-sm font-medium">Dashboard</Link>
+
+                        {isSignedIn && (
+                            <div className="ml-2">
+                                <UserButton afterSignOutUrl="/" />
+                            </div>
+                        )}
                     </nav>
                 </div>
             </header>

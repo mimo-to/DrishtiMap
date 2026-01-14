@@ -1,19 +1,23 @@
 import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { useAuthStore } from '../../store/useAuthStore';
+import { useAuth } from '@clerk/clerk-react';
 
 const ProtectedRoute = () => {
-    const { user, isAuthenticating } = useAuthStore();
+    const { isLoaded, userId } = useAuth();
     const location = useLocation();
 
-    if (isAuthenticating) {
-        // Minimal hydration UI (invisible to prevent flicker)
-        return null;
+    if (!isLoaded) {
+        // Simple loading spinner or null
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+            </div>
+        );
     }
 
-    if (!user) {
-        // Redirect to login, preserving the attempted location
-        return <Navigate to="/login" state={{ from: location }} replace />;
+    if (!userId) {
+        // Redirect to signin, preserving the attempted location
+        return <Navigate to="/signin" state={{ from: location }} replace />;
     }
 
     return <Outlet />;
