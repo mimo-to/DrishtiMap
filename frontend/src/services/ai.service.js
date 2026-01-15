@@ -46,5 +46,29 @@ async function suggest(levelId, input, token, contextData = {}) {
 }
 
 export const aiService = {
-  suggest
+  suggest,
+    /**
+     * Generate Research Report
+     */
+    async generateResearch(projectId, token) {
+        try {
+            const response = await fetch(`${API_URL}/research`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ projectId })
+            });
+
+            const data = await response.json();
+            if (!data.success) {
+                throw new Error(data.error || 'Research generation failed');
+            }
+            return data.report; // { reportMarkdown, generatedAt }
+        } catch (error) {
+            console.error('Research API Error:', error);
+            throw error;
+        }
+    }
 };

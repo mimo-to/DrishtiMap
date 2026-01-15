@@ -4,7 +4,7 @@ import { useQuestStore } from '../engine/useQuestStore';
 import { ExportService } from '../../services/export.service';
 import ExportPreview from './ExportPreview';
 
-const ExportActions = ({ onSave, saveStatus, isSaving }) => {
+const ExportActions = ({ onSave, saveStatus, isSaving, onResearch, isResearching }) => {
     // Read-only access to full answers state
     const { answers, projects, currentProjectId } = useQuestStore();
     const [previewType, setPreviewType] = useState(null); // 'json' | 'pdf' | null
@@ -56,6 +56,14 @@ const ExportActions = ({ onSave, saveStatus, isSaving }) => {
                 <div className="flex items-center gap-3">
                     {saveStatus === 'saved' && <span className="text-green-600 text-xs font-medium animate-fade-in">Saved!</span>}
                     {saveStatus === 'error' && <span className="text-red-600 text-xs font-medium animate-fade-in">Failed</span>}
+
+                    <Button
+                        onClick={onResearch}
+                        disabled={isResearching || isSaving}
+                        className="text-xs py-1.5 h-8 bg-indigo-600 text-white hover:bg-indigo-700 border-indigo-600 shadow-sm"
+                    >
+                        {isResearching ? 'Thinking...' : '✨ Finalize & Research'}
+                    </Button>
 
                     <Button
                         variant={saveStatus === 'saved' ? 'secondary' : 'primary'}

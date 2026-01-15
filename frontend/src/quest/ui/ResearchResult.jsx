@@ -1,0 +1,141 @@
+import React from 'react';
+import ReactMarkdown from 'react-markdown';
+import { X, Download, FileText, MonitorPlay } from 'lucide-react';
+import html2pdf from 'html2pdf.js';
+import mermaid from 'mermaid';
+
+// Initialize mermaid
+mermaid.initialize({
+    startOnLoad: false,
+    theme: 'default',
+    securityLevel: 'loose',
+    fontFamily: 'system-ui, sans-serif',
+    suppressErrorRendering: true
+});
+
+const MermaidDiagram = ({ chart }) => {
+    const [svg, setSvg] = React.useState('');
+    const uniqueId = React.useRef(`mermaid-${Math.random().toString(36).substr(2, 9)}`).current;
+
+    React.useEffect(() => {
+        if (chart) {
+            try {
+                mermaid.render(uniqueId, chart)
+                    .then(({ svg }) => setSvg(svg))
+                    .catch((error) => {
+                        console.error("Mermaid Render Failed:", error);
+                        setSvg(`<div class="p-4 bg-red-50 text-red-600 rounded text-sm font-mono">Failed to render diagram</div>`);
+                    });
+            } catch (e) {
+                console.error("Mermaid sync error:", e);
+            }
+        }
+    }, [chart, uniqueId]);
+
+    return <div className="mermaid-wrapper w-full flex justify-center my-6" dangerouslySetInnerHTML={{ __html: svg }} />;
+};
+
+const ResearchResult = ({ report, onClose }) => {
+
+    // Download PDF Functionality
+    const handleDownloadPDF = () => {
+        const element = document.getElementById('research-report-content');
+        const opt = {
+            margin: [0.5, 0.5, 0.5, 0.5], // Top, Left, Bottom, Right
+            filename: 'Strategic_Project_Report.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        };
+
+        // Simple client-side PDF generation
+        html2pdf().set(opt).from(element).save();
+    };
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-60 backdrop-blur-sm animate-fade-in">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden">
+
+                {/* Header */}
+                <div className="flex items-center justify-between p-4 px-6 border-b border-gray-100 bg-white z-10">
+                    <div className="flex items-center space-x-3">
+                        <div className="p-2 bg-indigo-100 rounded-lg text-indigo-600">
+                            <FileText size={20} />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-bold text-gray-900">Strategic Project Report</h3>
+                            <p className="text-xs text-gray-500">AI-Generated Intelligence</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <button
+                            onClick={handleDownloadPDF}
+                            className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none transition-colors"
+                        >
+                            <Download size={16} className="mr-2" />
+                            Download PDF
+                        </button>
+                        <button
+                            onClick={onClose}
+                            className="p-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100 rounded-full"
+                        >
+                            <X size={20} />
+                        </button>
+                    </div>
+                </div>
+
+                {/* Content - Scrollable Report View */}
+                <div className="flex-1 overflow-y-auto bg-gray-50 p-8 flex justify-center">
+
+                    {/* A4 Paper-like Container */}
+                    <div
+                        id="research-report-content"
+                        className="bg-white shadow-lg w-full max-w-4xl p-12 min-h-full prose prose-indigo
+                            prose-headings:text-indigo-900 prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h2:border-b prose-h2:pb-2 prose-h2:mt-8
+                            prose-p:text-gray-700 prose-li:text-gray-700 prose-strong:text-indigo-700"
+                    >
+                        {/* Cover Header for PDF */}
+                        <div className="mb-12 border-b-2 border-indigo-600 pb-6">
+                            <h1 className="text-4xl font-extrabold text-gray-900 mb-2 mt-0">Strategic Project Report</h1>
+                            <div className="flex justify-between items-end">
+                                <p className="text-gray-500 font-medium m-0">Generated by DrishtiMap AI Advisor</p>
+                                <p className="text-indigo-600 font-bold m-0">{new Date().toLocaleDateString()}</p>
+                            </div>
+                        </div>
+
+                        <ReactMarkdown components={{
+                            code({ node, inline, className, children, ...props }) {
+                                const match = /language-(\w+)/.exec(className || '');
+                                if (!inline && match && match[1] === 'mermaid') {
+                                    return <MermaidDiagram chart={String(children).replace(/\n$/, '')} />;
+                                }
+                                return <code className={className} {...props}>{children}</code>;
+                            }
+                        }}>
+                            {report}
+                        </ReactMarkdown>
+
+                        {/* Footer for PDF */}
+                        <div className="mt-16 pt-6 border-t border-gray-200 text-center text-xs text-gray-400">
+                            <p>Confidential & Proprietary • Generated via DrishtiMap Strategic Intelligence Platform</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                {/* Footer Controls */}
+                <div className="p-4 border-t border-gray-100 bg-gray-50 rounded-b-xl flex justify-end">
+                    <button
+                        onClick={onClose}
+                        className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800"
+                    >
+                        Close Preview
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default ResearchResult;

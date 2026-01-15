@@ -1,3 +1,4 @@
+// ... imports
 import React, { useState } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -10,6 +11,7 @@ import AISuggestionsPanel from '../../components/ai/AISuggestionsPanel';
 import { aiService } from '../../services/ai.service';
 import ExportActions from './ExportActions';
 import ProjectTimeline from './ProjectTimeline';
+import ResearchResult from './ResearchResult';
 
 const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, saveStatus, isSaving }) => {
     const { getToken } = useAuth();
@@ -17,6 +19,32 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
     const { projectId } = useParams();
     const [globalError, setGlobalError] = useState(null);
     const { submitAnswer, answers, selectedSuggestions, toggleSuggestion, clearSelections } = useQuestStore();
+
+    // Research State
+    const [isResearching, setIsResearching] = useState(false);
+    const [researchReport, setResearchReport] = useState(null);
+
+    const handleResearch = async () => {
+        if (!projectId) return;
+
+        // Auto-save first to ensure AI has latest data
+        if (onSave) await onSave();
+
+        setIsResearching(true);
+        try {
+            const token = await getToken();
+            const report = await aiService.generateResearch(projectId, token);
+            // report is { reportMarkdown: string, generatedAt: date }
+            setResearchReport(report.reportMarkdown || report);
+        } catch (err) {
+            console.error("Research Failed:", err);
+            setGlobalError("Failed to generate research report. Please try again.");
+        } finally {
+            setIsResearching(false);
+        }
+    };
+
+    // ... existing logic ...
 
     // EXTRACT DATA FOR CONTEXT
     const currentLevelData = levelConfig.questions.reduce((acc, q) => {
@@ -38,6 +66,8 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
         isLoading: false,
         error: null
     });
+
+    // ... handleSuggest logic ...
 
     const handleSuggest = async () => {
         setAiState({
@@ -150,6 +180,8 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
                             onSave={onSave}
                             saveStatus={saveStatus}
                             isSaving={isSaving}
+                            onResearch={handleResearch}
+                            isResearching={isResearching}
                         />
 
                         <AISuggestionsPanel
@@ -171,6 +203,14 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
                     />
                 </div>
             </div>
+
+            {/* Research Result Modal */}
+            {researchReport && (
+                <ResearchResult
+                    report={researchReport}
+                    onClose={() => setResearchReport(null)}
+                />
+            )}
         </div>
     );
 };
