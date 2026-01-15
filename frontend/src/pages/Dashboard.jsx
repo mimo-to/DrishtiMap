@@ -43,22 +43,17 @@ const Dashboard = () => {
         const token = await getToken();
         resetStore();
 
-        // Create project immediately? Or just navigate with state?
-        // Requirement: "Allow users to name projects when creating them"
-        // Let's create it immediately so it has an ID and title
         const title = newProjectTitle.trim();
-        setIsNewProjectModalOpen(false); // Close first
+        setIsNewProjectModalOpen(false);
 
-        // We need updates to useQuestStore to support creating with title directly
-        // But saveProject works.
-        // Let's set context/answers to empty first via resetStore, then save.
-        await saveProject(token, title);
+        const result = await saveProject(token, title);
 
-        // After save, currentProjectId is set. usage of saveProject updates store.
-        // We can navigate now. 
-        // Note: saveProject is async. 
-        navigate('/quest');
+        if (result && result.success) {
+            navigate(`/quest/${result.project._id}`);
+        }
     };
+
+    // ...
 
     // 2. Delete Project
     const requestDelete = (project, e) => {
@@ -68,11 +63,12 @@ const Dashboard = () => {
     };
 
     const confirmDelete = async () => {
-        if (!projectToDelete) return;
-        const token = await getToken();
-        await deleteProject(projectToDelete._id, token);
-        setIsDeleteModalOpen(false);
-        setProjectToDelete(null);
+        if (projectToDelete) {
+            const token = await getToken();
+            await deleteProject(projectToDelete._id, token);
+            setIsDeleteModalOpen(false);
+            setProjectToDelete(null);
+        }
     };
 
     // 3. Edit Title
@@ -83,7 +79,7 @@ const Dashboard = () => {
     };
 
     const cancelEditing = (e) => {
-        e.stopPropagation();
+        if (e) e.stopPropagation();
         setEditingProjectId(null);
         setEditTitle('');
     };
@@ -93,14 +89,12 @@ const Dashboard = () => {
         if (!editTitle.trim()) return;
 
         const token = await getToken();
-        await updateProjectTitle(editingProjectId, editTitle.trim(), token);
+        await updateProjectTitle(editingProjectId, editTitle, token);
         setEditingProjectId(null);
     };
 
-    const handleOpenProject = async (projectId) => {
-        const token = await getToken();
-        await loadProject(projectId, token);
-        navigate('/quest');
+    const handleOpenProject = (projectId) => {
+        navigate(`/quest/${projectId}`);
     };
 
     // --- Render Helpers ---
@@ -183,12 +177,22 @@ const Dashboard = () => {
                                 </p>
 
                                 <div className="flex items-center justify-between mt-4">
-                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${project.status === 'completed' ? 'bg-green-100 text-green-800' :
-                                            project.status === 'archived' ? 'bg-gray-100 text-gray-800' :
-                                                'bg-yellow-100 text-yellow-800'
-                                        }`}>
-                                        {project.status.replace('_', ' ')}
-                                    </span>
+                                    {/* Status Badge - Visual Override for 100% */}
+                                    {(() => {
+                                        const percent = project.meta?.completionPercent || 0;
+                                        // If technically 'draft' but 100% complete, treat as completed for UI
+                                        const effectiveStatus = (project.status === 'draft' && percent === 100) ? 'completed' : project.status;
+
+                                        const colorClass = effectiveStatus === 'completed' ? 'bg-green-100 text-green-800' :
+                                            effectiveStatus === 'archived' ? 'bg-gray-100 text-gray-800' :
+                                                'bg-yellow-100 text-yellow-800'; // draft
+
+                                        return (
+                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colorClass}`}>
+                                                {effectiveStatus.replace('_', ' ')}
+                                            </span>
+                                        );
+                                    })()}
                                     <span className="text-xs text-gray-400">
                                         {(project.meta?.completionPercent || 0)}% Complete
                                     </span>

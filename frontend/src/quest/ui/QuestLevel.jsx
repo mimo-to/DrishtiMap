@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '@clerk/clerk-react';
+import { useNavigate, useParams } from 'react-router-dom';
 import QuestionRenderer from './QuestionRenderer';
 import QuestControls from './QuestControls';
 import Card from '../../components/ui/Card';
@@ -8,9 +9,12 @@ import { engine } from '../engine/QuestEngine';
 import AISuggestionsPanel from '../../components/ai/AISuggestionsPanel';
 import { aiService } from '../../services/ai.service';
 import ExportActions from './ExportActions';
+import ProjectTimeline from './ProjectTimeline';
 
 const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, saveStatus, isSaving }) => {
     const { getToken } = useAuth();
+    const navigate = useNavigate();
+    const { projectId } = useParams();
     const [globalError, setGlobalError] = useState(null);
     const { submitAnswer, answers, selectedSuggestions, toggleSuggestion, clearSelections } = useQuestStore();
 
@@ -19,6 +23,13 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
         if (answers[q.id]) acc[q.id] = answers[q.id];
         return acc;
     }, {});
+
+    const handleJumpToLevel = (targetLevelId) => {
+        // Only navigate if we have a project ID context
+        if (targetLevelId && projectId) {
+            navigate(`/quest/${projectId}/${targetLevelId}`);
+        }
+    };
 
     // AI STATE
     const [aiState, setAiState] = useState({
@@ -105,48 +116,61 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
     };
 
     return (
-        <div className="max-w-5xl mx-auto py-8">
-            <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">{levelConfig.title}</h2>
-                <p className="text-gray-600 mt-1">{levelConfig.description}</p>
-            </div>
+        <div className="max-w-7xl mx-auto px-4 py-8">
+            <div className="flex flex-col lg:flex-row gap-8">
+                {/* Main Content Area */}
+                <div className="flex-1 min-w-0">
+                    <div className="mb-6">
+                        <h2 className="text-2xl font-bold text-gray-900">{levelConfig.title}</h2>
+                        <p className="text-gray-600 mt-1">{levelConfig.description}</p>
+                    </div>
 
-            <Card>
-                <div className="space-y-6">
-                    {globalError && (
-                        <div className="bg-red-50 text-red-600 p-3 rounded text-sm border border-red-200">
-                            {globalError}
+                    <Card>
+                        <div className="space-y-6">
+                            {globalError && (
+                                <div className="bg-red-50 text-red-600 p-3 rounded text-sm border border-red-200">
+                                    {globalError}
+                                </div>
+                            )}
+
+                            {levelConfig.questions.map((q) => (
+                                <QuestionRenderer key={q.id} question={q} />
+                            ))}
                         </div>
-                    )}
 
-                    {levelConfig.questions.map((q) => (
-                        <QuestionRenderer key={q.id} question={q} />
-                    ))}
+                        <QuestControls
+                            onNext={handleNext}
+                            onBack={onNext ? onBack : undefined}
+                            onSuggest={handleSuggest}
+                            isFirst={isFirst}
+                            isLast={isLast}
+                        />
+
+                        <ExportActions
+                            onSave={onSave}
+                            saveStatus={saveStatus}
+                            isSaving={isSaving}
+                        />
+
+                        <AISuggestionsPanel
+                            suggestions={aiState.error ? [] : aiState.suggestions}
+                            selectedItems={selectedSuggestions[levelConfig.id] || []}
+                            onToggle={(sugg) => toggleSuggestion(levelConfig.id, sugg)}
+                            onClear={() => clearSelections(levelConfig.id)}
+                            isLoading={aiState.isLoading}
+                            error={aiState.error}
+                        />
+                    </Card>
                 </div>
 
-                <QuestControls
-                    onNext={handleNext}
-                    onBack={onNext ? onBack : undefined}
-                    onSuggest={handleSuggest}
-                    isFirst={isFirst}
-                    isLast={isLast}
-                />
-
-                <ExportActions
-                    onSave={onSave}
-                    saveStatus={saveStatus}
-                    isSaving={isSaving}
-                />
-
-                <AISuggestionsPanel
-                    suggestions={aiState.error ? [] : aiState.suggestions}
-                    selectedItems={selectedSuggestions[levelConfig.id] || []}
-                    onToggle={(sugg) => toggleSuggestion(levelConfig.id, sugg)}
-                    onClear={() => clearSelections(levelConfig.id)}
-                    isLoading={aiState.isLoading}
-                    error={aiState.error}
-                />
-            </Card>
+                {/* Right Sidebar - Timeline */}
+                <div className="hidden lg:block w-80 flex-shrink-0">
+                    <ProjectTimeline
+                        currentLevelId={levelConfig.id}
+                        onJumpToLevel={handleJumpToLevel}
+                    />
+                </div>
+            </div>
         </div>
     );
 };

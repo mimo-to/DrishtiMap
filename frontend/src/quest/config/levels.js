@@ -73,7 +73,7 @@ export const LEVELS = [
       {
         id: 'q4_indicators',
         key: 'indicators',
-        type: 'text',
+        type: 'long_text',
         prompt: 'Key Performance Indicators (KPIs)',
         validation: { required: true }
       }

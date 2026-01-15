@@ -8,22 +8,45 @@ import { LEVELS, getLevelById, getNextLevelId, getPrevLevelId } from '../quest/c
 import { useAutoSave } from '../hooks/useAutoSave';
 
 const QuestPage = () => {
-    const { levelId } = useParams();
+    const { projectId, levelId } = useParams();
     const navigate = useNavigate();
     const { getToken, userId } = useAuth();
-    const { saveProject, isLoading, currentProjectId, answers, hasUnsavedChanges } = useQuestStore();
+    const {
+        saveProject,
+        loadProject,
+        isLoading,
+        currentProjectId,
+        answers,
+        hasUnsavedChanges
+    } = useQuestStore();
+
     const [saveStatus, setSaveStatus] = React.useState(null); // 'saving', 'saved', 'error'
 
+    // 0. Hydration (Restore State on Refresh)
+    useEffect(() => {
+        const hydrate = async () => {
+            if (projectId && projectId !== currentProjectId && userId) {
+                console.log("Hydrating project from URL:", projectId);
+                const token = await getToken();
+                await loadProject(projectId, token);
+            }
+        };
+        hydrate();
+    }, [projectId, userId, currentProjectId, getToken, loadProject]);
+
     // 1. Calculations
-    const levelConfig = getLevelById(levelId);
-    const isFirst = levelId === LEVELS[0].id;
-    const isLast = levelId === LEVELS[LEVELS.length - 1].id;
+    // Default to first level if undefined
+    const activeLevelId = levelId || LEVELS[0].id;
+    const levelConfig = getLevelById(activeLevelId);
+
+    const isFirst = activeLevelId === LEVELS[0].id;
+    const isLast = activeLevelId === LEVELS[LEVELS.length - 1].id;
 
     // 2. Handlers
     const handleNext = () => {
-        const nextId = getNextLevelId(levelId);
+        const nextId = getNextLevelId(activeLevelId);
         if (nextId) {
-            navigate(`/quest/${nextId}`);
+            navigate(`/quest/${projectId}/${nextId}`);
         } else {
             // Completed last level - go to dashboard or summary
             navigate('/dashboard');
@@ -31,9 +54,9 @@ const QuestPage = () => {
     };
 
     const handleBack = () => {
-        const prevId = getPrevLevelId(levelId);
+        const prevId = getPrevLevelId(activeLevelId);
         if (prevId) {
-            navigate(`/quest/${prevId}`);
+            navigate(`/quest/${projectId}/${prevId}`);
         }
     };
 
@@ -60,8 +83,18 @@ const QuestPage = () => {
     });
 
     // 4. Validations & Redirects
+
+    // If loading a new project, show spinner
+    if (isLoading && projectId !== currentProjectId) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+            </div>
+        );
+    }
+
     if (!levelId) {
-        return <Navigate to={`/quest/${LEVELS[0].id}`} replace />;
+        return <Navigate to={`/quest/${projectId}/${LEVELS[0].id}`} replace />;
     }
 
     if (!levelConfig) {

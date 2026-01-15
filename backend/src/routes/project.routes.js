@@ -32,22 +32,47 @@ router.post('/', async (req, res) => {
     // Ensure local user record exists
     await ensureUser(clerkUserId);
 
-    // Helper to calculate word count
+    // --- 1. Robust Metadata Calculation ---
+    
+    // Helper: Word Count
     const calculateWordCount = (obj) => {
-      let count = 0;
       if (!obj) return 0;
+      let count = 0;
       Object.values(obj).forEach(val => {
-        if (typeof val === 'string') {
-          count += val.trim().split(/\s+/).length;
-        }
+        if (typeof val === 'string') count += val.trim().split(/\s+/).length;
+        else if (typeof val === 'object' && val !== null) count += calculateWordCount(val); // Recurse
       });
       return count;
     };
 
-    // Derived Metadata
     const derivedWordCount = calculateWordCount(projectData);
-    // Clamp client-provided completion or default to existing/0
-    // Note: Ideally backend should calculate this based on schema, but strictly clamping for now from plan.
+
+    // Helper: Auto-Title Generator
+    const generateTitle = () => {
+        // 1. Explicit Title
+        if (title && title.trim() !== 'Untitled Project' && title.trim().length > 0) return title.trim();
+
+        // 2. Fallback: Problem Statement (Level 1)
+        // Access safely
+        const ans = projectData.answers || {};
+        const problem = ans['q1_problem'] || ans['problemStatement'];
+        if (problem && typeof problem === 'string' && problem.length > 5) {
+            return problem.substring(0, 60) + (problem.length > 60 ? '...' : '');
+        }
+
+        // 3. Fallback: Impact (Level 2)
+        const impact = ans['q2_impact'] || ans['impact'];
+        if (impact && typeof impact === 'string' && impact.length > 5) {
+             return impact.substring(0, 60) + (impact.length > 60 ? '...' : '');
+        }
+
+        // 4. Fallback: Default
+        return `New Methodology ${new Date().toLocaleDateString()}`;
+    };
+
+    const finalTitle = generateTitle();
+    
+    // Validate Progress
     let cleanCompletion = 0;
     if (meta && typeof meta.completionPercent === 'number') {
         cleanCompletion = Math.min(100, Math.max(0, meta.completionPercent));
@@ -63,29 +88,39 @@ router.post('/', async (req, res) => {
         return res.status(404).json({ success: false, error: 'Project not found' });
       }
 
-      project.title = title || project.title;
+      // Smart Title Update:
+      // If the current title is "Untitled..." OR the user explicitly provided a new title
+      const isCurrentlyGeneric = project.title.startsWith('Untitled') || project.title.startsWith('New Methodology');
+      // Fix: Don't let "Untitled Project" from the frontend override our smart title
+      const incomingTitleValid = title && title.trim() !== 'Untitled Project' && title.trim().length > 0;
+      
+      if (incomingTitleValid) {
+          project.title = title; // Explicit (valid) override always wins
+      } else if (isCurrentlyGeneric && finalTitle !== project.title) {
+          project.title = finalTitle; // Auto-upgrade title
+      }
+
       project.data = projectData; 
       
       // Update Meta & Activity
       project.meta.wordCount = derivedWordCount;
-      if (meta && meta.completionPercent !== undefined) {
-          project.meta.completionPercent = cleanCompletion;
-      }
-      project.activity.lastSavedAt = Date.now();
+      project.meta.completionPercent = cleanCompletion;
       
+      project.activity.lastSavedAt = Date.now();
       project.updatedAt = Date.now();
+      
       await project.save();
 
     } else {
       // Create new project
       project = await Project.create({
         clerkUserId,
-        title: title || 'Untitled Project',
+        title: finalTitle,
         data: projectData,
         status: 'draft',
         meta: {
             wordCount: derivedWordCount,
-            completionPercent: cleanCompletion,
+            completionPercent: cleanCompletion, // Save calculated progress
             lastOpenedAt: Date.now()
         },
         activity: {

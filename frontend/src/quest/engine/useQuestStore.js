@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { engine } from './QuestEngine.js';
+import { LEVELS } from '../config/levels.js';
 
 /**
  * useQuestStore (State Layer)
@@ -11,7 +12,6 @@ export const useQuestStore = create((set, get) => ({
   // Authoritative Semantic State (Persisted)
   context: {},
   
-  // UI State (Ephemeral)
   // UI State (Ephemeral)
   answers: {},
   errors: {},
@@ -26,6 +26,31 @@ export const useQuestStore = create((set, get) => ({
   selectedSuggestions: {}, // { levelId: [items] }
 
   // --- Actions ---
+
+  /**
+   * _calculateProgress (Internal Helper)
+   * Returns a number 0-100 based on level completion.
+   * Simple Rule: Each Level is 20%. Level is complete if all required fields are filled.
+   */
+  _calculateProgress: () => {
+    const { answers } = get();
+    let completedLevels = 0;
+    
+    LEVELS.forEach(level => {
+        const requiredQuestions = level.questions.filter(q => q.validation?.required);
+        if (requiredQuestions.length === 0) return; // Should not happen
+
+        const isLevelComplete = requiredQuestions.every(q => {
+             const ans = answers[q.id];
+             // Check if answer exists and has length
+             return ans && typeof ans === 'string' && ans.trim().length > 0; 
+        });
+
+        if (isLevelComplete) completedLevels++;
+    });
+
+    return Math.round((completedLevels / LEVELS.length) * 100);
+  },
 
   /**
    * setContext
@@ -68,11 +93,15 @@ export const useQuestStore = create((set, get) => ({
       });
       const data = await res.json();
       if (data.success) {
+        // Migration: Handle structure differences
+        const pData = data.project.data || {};
+        
         // Load data into store
         set({ 
           currentProjectId: data.project._id,
-          answers: data.project.data || {}, // Restore answers
-          selectedSuggestions: data.project.selectedSuggestions || {}, // Restore selections
+          // Support new { data: { answers, selectedSuggestions } } AND legacy flat format
+          answers: pData.answers || (pData['q1_problem'] ? pData : {}), 
+          selectedSuggestions: pData.selectedSuggestions || {}, 
           hasUnsavedChanges: false,
           lastSavedAt: data.project.updatedAt,
           saveError: null
@@ -90,7 +119,10 @@ export const useQuestStore = create((set, get) => ({
    * Persists current state to MongoDB.
    */
   saveProject: async (token, title) => {
-    const { currentProjectId, answers } = get();
+    const { currentProjectId, answers, selectedSuggestions } = get();
+    // Calculate live progress
+    const completionPercent = get()._calculateProgress();
+    
     set({ isLoading: true, saveError: null });
     
     try {
@@ -102,31 +134,42 @@ export const useQuestStore = create((set, get) => ({
         },
         body: JSON.stringify({
           projectId: currentProjectId,
-          projectId: currentProjectId,
-          answers,
-          // selectedSuggestions added via get().selectedSuggestions above in previous step, checking context now.
-          // Wait, Step 2728 shows relevant lines:
-          // 102: projectId: currentProjectId,
-          // 103: answers,
-          // 104: projectId: currentProjectId,
-          // 105: answers,
-          // 106: selectedSuggestions: get().selectedSuggestions,
-          
-          // I need to remove lines 104-105.
-          projectId: currentProjectId,
-          answers,
-          selectedSuggestions: get().selectedSuggestions,
-          title
+          title,
+          // Wrap main data
+          data: {
+              answers,
+              selectedSuggestions
+          },
+          // Send Metadata
+          meta: {
+              completionPercent
+          }
         })
       });
       
       const data = await res.json();
       if (data.success) {
-        set({ 
-            currentProjectId: data.project._id,
-            hasUnsavedChanges: false,
-            saveError: null,
-            lastSavedAt: new Date().toISOString()
+        set((state) => {
+            // Update the specific project in our list with the fresh data (including new title)
+            const updatedProjects = state.projects.map(p => 
+                p._id === data.project._id ? data.project : p
+            );
+            
+            // If it's a new project, it might not be in the list yet?
+            // Actually saveProject handles both create and update.
+            // If create, we should add it.
+            const projectExists = state.projects.find(p => p._id === data.project._id);
+            const finalProjects = projectExists 
+                ? updatedProjects 
+                : [data.project, ...state.projects];
+
+            return { 
+                currentProjectId: data.project._id,
+                hasUnsavedChanges: false,
+                saveError: null,
+                lastSavedAt: new Date().toISOString(),
+                projects: finalProjects
+            };
         });
       } else {
         throw new Error(data.error || 'Save failed');

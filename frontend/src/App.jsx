@@ -21,8 +21,9 @@ function App() {
                     <Route element={<ProtectedRoute />}>
                         <Route element={<MainLayout />}>
                             <Route path="/dashboard" element={<Dashboard />} />
-                            <Route path="/quest" element={<QuestPage />} />
-                            <Route path="/quest/:levelId" element={<QuestPage />} />
+                            {/* New Routes with Project Context */}
+                            <Route path="/quest/:projectId" element={<QuestPage />} />
+                            <Route path="/quest/:projectId/:levelId" element={<QuestPage />} />
                         </Route>
                     </Route>
 
