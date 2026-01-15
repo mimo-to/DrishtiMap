@@ -5,37 +5,38 @@ import QuestControls from './QuestControls';
 import Card from '../../components/ui/Card';
 import { useQuestStore } from '../engine/useQuestStore';
 import { engine } from '../engine/QuestEngine';
-import TransparencyPanel from '../../components/ai/TransparencyPanel';
+import AISuggestionsPanel from '../../components/ai/AISuggestionsPanel';
 import { aiService } from '../../services/ai.service';
 import ExportActions from './ExportActions';
 
 const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, saveStatus, isSaving }) => {
     const { getToken } = useAuth();
     const [globalError, setGlobalError] = useState(null);
-    const submitAnswer = useQuestStore((state) => state.submitAnswer);
-    const answers = useQuestStore((state) => state.answers);
+    const { submitAnswer, answers, selectedSuggestions, toggleSuggestion, clearSelections } = useQuestStore();
 
-    // EXTRACT DATA FOR TRANSPARENCY PANEL (Source of Truth: Form State)
+    // EXTRACT DATA FOR CONTEXT
     const currentLevelData = levelConfig.questions.reduce((acc, q) => {
         if (answers[q.id]) acc[q.id] = answers[q.id];
         return acc;
     }, {});
 
-    // MOCK AI STATE (Phase 7.1 Requirement: Empty state)
+    // AI STATE
     const [aiState, setAiState] = useState({
+        suggestions: [],
         rawResponse: null,
-        validationData: null,
         isLoading: false,
         error: null
     });
 
     const handleSuggest = async () => {
-        // Clear previous state
-        setAiState(prev => ({ ...prev, isLoading: true, error: null, rawResponse: null }));
+        setAiState({
+            suggestions: [],
+            rawResponse: null,
+            isLoading: true,
+            error: null
+        });
 
         try {
-            // 1. Get current input from the first question of this level (Assumption for MVP)
-            // Ideally, we'd pass the specific field being focused, but for now take the first answer.
             const firstQuestionId = levelConfig.questions[0].id;
             const input = answers[firstQuestionId] || "";
 
@@ -43,20 +44,38 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
                 throw new Error("Please enter some text first.");
             }
 
-            // 2. Call AI Service
-            // STRICT AUTH: Must pass token explicitly
             const token = await getToken();
-            const result = await aiService.suggest(levelConfig.id, input, token);
 
-            // 3. Update State with Real Data
-            setAiState({
-                isLoading: false,
-                rawResponse: result,
-                validationData: null, // Backend doesn't return scores yet (Phase 6.4 scope)
-                error: null
-            });
+            // CONTEXT EXPANSION: Pass full project history for AI memory
+            const fullContext = {
+                currentLevelData, // Data from this specific level
+                allAnswers: answers, // Global answers from previous levels
+                allSelections: selectedSuggestions // Global AI selections from previous levels
+            };
+
+            const result = await aiService.suggest(levelConfig.id, input, token, fullContext);
+
+            // DEBUG: Inspect Response
+            console.log("AI Service Result:", result);
+            if (result.suggestions) {
+                console.log("Suggestions Array:", result.suggestions);
+            } else {
+                console.warn("Missing suggestions array in result");
+            }
+
+            if (result.suggestions && Array.isArray(result.suggestions)) {
+                setAiState({
+                    isLoading: false,
+                    suggestions: result.suggestions,
+                    rawResponse: result,
+                    error: null
+                });
+            } else {
+                throw new Error("AI returned an invalid format.");
+            }
 
         } catch (err) {
+            console.error("AI Error:", err);
             setAiState(prev => ({
                 ...prev,
                 isLoading: false,
@@ -69,10 +88,8 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
         setGlobalError(null);
         let hasError = false;
 
-        // BULK VALIDATION
         levelConfig.questions.forEach((q) => {
             const currentVal = answers[q.id];
-            // We must re-run submitAnswer to trigger validation state updates in the store
             const result = submitAnswer(q, currentVal);
             if (!result.success) {
                 hasError = true;
@@ -84,12 +101,11 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
             return;
         }
 
-        // Proceed if valid
         onNext();
     };
 
     return (
-        <div className="max-w-2xl mx-auto py-8">
+        <div className="max-w-5xl mx-auto py-8">
             <div className="mb-6">
                 <h2 className="text-2xl font-bold text-gray-900">{levelConfig.title}</h2>
                 <p className="text-gray-600 mt-1">{levelConfig.description}</p>
@@ -122,14 +138,13 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
                     isSaving={isSaving}
                 />
 
-                {/* PHASE 7.1: TRANSPARENCY PANEL (Read-Only) */}
-                <TransparencyPanel
-                    rawResponse={aiState.rawResponse}
-                    validationData={aiState.validationData}
-                    finalResult={currentLevelData}
+                <AISuggestionsPanel
+                    suggestions={aiState.error ? [] : aiState.suggestions}
+                    selectedItems={selectedSuggestions[levelConfig.id] || []}
+                    onToggle={(sugg) => toggleSuggestion(levelConfig.id, sugg)}
+                    onClear={() => clearSelections(levelConfig.id)}
                     isLoading={aiState.isLoading}
                     error={aiState.error}
-                    source={aiState.rawResponse?._source === 'cache' ? 'Cached' : aiState.rawResponse ? 'Live' : 'Disabled'}
                 />
             </Card>
         </div>

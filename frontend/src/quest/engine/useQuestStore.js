@@ -23,6 +23,7 @@ export const useQuestStore = create((set, get) => ({
   hasUnsavedChanges: false,
   lastSavedAt: null,
   saveError: null,
+  selectedSuggestions: {}, // { levelId: [items] }
 
   // --- Actions ---
 
@@ -71,6 +72,7 @@ export const useQuestStore = create((set, get) => ({
         set({ 
           currentProjectId: data.project._id,
           answers: data.project.data || {}, // Restore answers
+          selectedSuggestions: data.project.selectedSuggestions || {}, // Restore selections
           hasUnsavedChanges: false,
           lastSavedAt: data.project.updatedAt,
           saveError: null
@@ -100,7 +102,20 @@ export const useQuestStore = create((set, get) => ({
         },
         body: JSON.stringify({
           projectId: currentProjectId,
+          projectId: currentProjectId,
           answers,
+          // selectedSuggestions added via get().selectedSuggestions above in previous step, checking context now.
+          // Wait, Step 2728 shows relevant lines:
+          // 102: projectId: currentProjectId,
+          // 103: answers,
+          // 104: projectId: currentProjectId,
+          // 105: answers,
+          // 106: selectedSuggestions: get().selectedSuggestions,
+          
+          // I need to remove lines 104-105.
+          projectId: currentProjectId,
+          answers,
+          selectedSuggestions: get().selectedSuggestions,
           title
         })
       });
@@ -205,7 +220,8 @@ export const useQuestStore = create((set, get) => ({
       context: {},
       hasUnsavedChanges: false,
       lastSavedAt: null,
-      saveError: null
+      saveError: null,
+      selectedSuggestions: {}
     });
   },
 
@@ -244,5 +260,33 @@ export const useQuestStore = create((set, get) => ({
     });
 
     return { success: true };
+  },
+
+  toggleSuggestion: (levelId, suggestion) => {
+    set((state) => {
+        const currentList = state.selectedSuggestions[levelId] || [];
+        const exists = currentList.find(s => s.id === suggestion.id);
+        const newList = exists 
+            ? currentList.filter(s => s.id !== suggestion.id)
+            : [...currentList, suggestion];
+        
+        return {
+            selectedSuggestions: {
+                ...state.selectedSuggestions,
+                [levelId]: newList
+            },
+            hasUnsavedChanges: true
+        };
+    });
+  },
+
+  clearSelections: (levelId) => {
+    set((state) => ({
+        selectedSuggestions: {
+            ...state.selectedSuggestions,
+            [levelId]: []
+        },
+        hasUnsavedChanges: true
+    }));
   }
 }));

@@ -66,30 +66,39 @@ async function generateSuggestion(userId, context, promptId, input) {
     if (!responseText) {
         throw new Error("Empty response from Gemini.");
     }
+    
+    console.log("--- RAW AI RESPONSE START ---");
+    console.log(responseText.substring(0, 1000)); // Log first 1000 chars
+    console.log("--- RAW AI RESPONSE END ---");
 
     // 7. JSON PARSING & VALIDATION
     // We expect strict JSON from the model as per prompt instructions
-    const jsonResponse = _parseStrictJSON(responseText);
+    // 7. JSON PARSING & VALIDATION
+    // We expect strict JSON from the model as per prompt instructions
+    const rawJson = _parseStrictJSON(responseText);
+    
+    // 7.1 NORMALIZATION (Fix Model Inconsistencies)
+    const normalizedResponse = _normalizeResponse(rawJson);
 
     // 8. CACHE WRITE
     cacheMap.set(cacheKey, {
-      response: jsonResponse,
+      response: normalizedResponse,
       timestamp: Date.now()
     });
 
-    return { ...jsonResponse, _source: 'live' };
+    return { ...normalizedResponse, _source: 'live' };
 
   } catch (error) {
     console.error("AI Service Error:", error);
     
     // Map Gemini/Network errors to standardized status codes
-    let status = 500;
-    let message = "AI Processing Failed";
+    if (error.message && (error.message.includes("429") || error.message.includes("Quota"))) {
+         throw { status: 429, message: "Rate Limit Exceeded. Please wait 1 minute before retrying." };
+    }
     
-    if (error.message && error.message.includes("429")) status = 429;
-    if (error.message && error.message.includes("Quota")) status = 429;
+    if (error.status) throw error; // Re-throw known errors
     
-    throw { status, message, details: error.message };
+    throw { status: 500, message: "AI Processing Failed", details: error.message };
   }
 }
 
@@ -112,29 +121,160 @@ function _checkRateLimit(userId) {
 
 function _generateCacheKey(userId, promptId, input) {
   const normInput = input.trim().toLowerCase();
+  // v2.14: Logic Verified & Cleaned
   return crypto.createHash('sha256')
-    .update(`${userId}:${promptId}:${normInput}`)
+    .update(`${userId}:${promptId}:${normInput}:v2.14`)
     .digest('hex');
 }
 
 function _parseStrictJSON(text) {
   try {
-    // Clean potential markdown code blocks ```json ... ```
-    let cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
-    
-    // Sometimes models return "Here is the JSON: { ... }"
-    const jsonStart = cleanText.indexOf('{');
-    const jsonEnd = cleanText.lastIndexOf('}');
-    
-    if (jsonStart !== -1 && jsonEnd !== -1) {
-        cleanText = cleanText.substring(jsonStart, jsonEnd + 1);
+    // 1. Regex to find the largest JSON object or array
+    const jsonMatch = text.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
+    if (jsonMatch) {
+       return JSON.parse(jsonMatch[0]);
     }
-
-    return JSON.parse(cleanText);
+    throw new Error("No JSON found");
   } catch (e) {
-    throw { status: 502, message: "AI returned invalid format.", details: text };
+    console.error("JSON Parse Failed on:", text);
+    throw { status: 502, message: "AI returned invalid JSON format.", details: text.slice(0, 200) };
   }
 }
+
+function _normalizeResponse(json) {
+    let rawList = [];
+
+    // 1. Extract Array (Aggressive Search)
+    if (Array.isArray(json)) {
+        rawList = json;
+    } else if (json.suggestions && Array.isArray(json.suggestions)) {
+        rawList = json.suggestions;
+    } else if (json.items && Array.isArray(json.items)) {
+        rawList = json.items; 
+    } else {
+        // Fallback A: Look for *any* key holding an array
+        const possibleArray = Object.values(json).find(v => Array.isArray(v));
+        if (possibleArray) {
+            rawList = possibleArray;
+        } else {
+            // Fallback B: Handle Map/Dictionary style { "1": {...}, "2": {...} }
+            // Filter out primitives, keep objects that look like suggestions
+            const vals = Object.values(json).filter(v => 
+                v && typeof v === 'object' && !Array.isArray(v) && 
+                (v.title || v.Title || v.description || v.goal || v.name)
+            );
+            if (vals.length > 0) rawList = vals;
+        }
+    }
+
+    // Guard: If still empty, try wrapping the root object itself if it looks like a single suggestion
+    if (rawList.length === 0 && (json.title || json.suggestion)) {
+        rawList = [json];
+    }
+    
+    // 2. Map & Clean
+    let cleanedSuggestions = rawList.map((s, idx) => {
+        let stakeholders = s.stakeholders || s.stakeholders_involved || s.Stakeholders || [];
+        // Force Array
+        if (typeof stakeholders === 'string') {
+             stakeholders = stakeholders.split(',').map(str => str.trim());
+        }
+        if (!Array.isArray(stakeholders)) {
+             stakeholders = [];
+        }
+
+        // Flexible Title/Description Mapping
+        const title = s.title || s.Title || s.name || s.Name || s.project || s.Project || s.proposal || s.Proposal ||
+                      s.goal || s.Goal || s.strategy || s.Strategy || 
+                      s.activity || s.Activity || s.activities || s.Activities || 
+                      s.risk || s.Risk || s.indicator || s.Indicator || s.kpi || s.KPI || 
+                      s.metric || s.Metric || s.measure || s.Measure ||
+                      s.suggestion || s.Suggestion ||
+                      "Untitled Suggestion";
+        
+        const description = s.description || s.Description || s.details || s.Details || s.summary || s.Summary || s.explanation || s.Explanation || "No description provided.";
+
+        // Normalize Values (Impact/Cost)
+        let impact = s.impact || s.Impact || "Medium";
+        if (typeof impact === 'string') {
+            if (impact.toLowerCase().includes('high')) impact = "High";
+            else if (impact.toLowerCase().includes('low')) impact = "Low";
+            else impact = "Medium";
+        } else { impact = "Medium"; }
+
+        let cost = s.cost || s.Cost || "Medium";
+        if (typeof cost === 'string') {
+            if (cost.toLowerCase().includes('high')) cost = "High";
+            else if (cost.toLowerCase().includes('low')) cost = "Low";
+            else cost = "Medium";
+        } else { cost = "Medium"; }
+
+        return {
+            id: s.id || `gen_${Date.now()}_${idx}`,
+            title: title,
+            description: description,
+            primary_tag: s.primary_tag || s.tag || s.Tag || "General",
+            stakeholders: stakeholders,
+            impact: impact,
+            cost: cost,
+            confidence: s.confidence || 0.8
+        };
+    });
+
+    // 3. Deduplicate (by Title)
+    const seen = new Set();
+    cleanedSuggestions = cleanedSuggestions.filter(s => {
+        const key = s.title.toLowerCase().trim();
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    });
+
+    // 4. Limit (REMOVED - User wants 6)
+    // cleanedSuggestions = cleanedSuggestions.slice(0, 3);
+
+    // 5. Diversify
+    const uniqueImpacts = new Set(cleanedSuggestions.map(s => s.impact));
+    const uniqueCosts = new Set(cleanedSuggestions.map(s => s.cost));
+
+    if (uniqueImpacts.size === 1 || uniqueCosts.size === 1) {
+        cleanedSuggestions = _applyDiversificationHeuristics(cleanedSuggestions);
+    }
+
+    if (cleanedSuggestions.length === 0) {
+        // Fallback: This usually happens if regex matched but structure was empty
+        throw { status: 502, message: "AI returned no valid suggestions. Please try again." };
+    }
+
+    return { suggestions: cleanedSuggestions };
+}
+
+function _applyDiversificationHeuristics(suggestions) {
+    return suggestions.map(s => {
+        const text = (s.description + " " + s.title).toLowerCase();
+        let newImpact = s.impact;
+        let newCost = s.cost;
+
+        // User-defined Heuristics
+        if (text.match(/implement|establish|create|build|infrastructure/)) {
+            newImpact = "High";
+            newCost = "High";
+        } else if (text.match(/analyze|assess|study|review|plan/)) {
+            newImpact = "Medium";
+            newCost = "Medium";
+        } else if (text.match(/educate|train|workshop|awareness|campaign/)) {
+            // "High Impact, Low Cost" is often desired, but per rule:
+            newImpact = "Medium"; 
+            newCost = "Low";
+        } else if (text.match(/policy|regulate|compliance/)) {
+            newImpact = "High";
+            newCost = "Low"; 
+        }
+
+        return { ...s, impact: newImpact, cost: newCost };
+    });
+}
+
 
 function _delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
