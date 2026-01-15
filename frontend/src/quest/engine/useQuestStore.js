@@ -97,20 +97,63 @@ export const useQuestStore = create((set, get) => ({
         const pData = data.project.data || {};
         
         // Load data into store
-        set({ 
-          currentProjectId: data.project._id,
-          // Support new { data: { answers, selectedSuggestions } } AND legacy flat format
-          answers: pData.answers || (pData['q1_problem'] ? pData : {}), 
-          selectedSuggestions: pData.selectedSuggestions || {}, 
-          hasUnsavedChanges: false,
-          lastSavedAt: data.project.updatedAt,
-          saveError: null
+        set((state) => { 
+          // Update the projects array with the fresh project data
+          const updatedProjects = state.projects.map(p => 
+            p._id === data.project._id ? data.project : p
+          );
+          
+          // If project not in list, add it
+          const projectExists = state.projects.find(p => p._id === data.project._id);
+          const finalProjects = projectExists ? updatedProjects : [data.project, ...state.projects];
+          
+          return {
+            currentProjectId: data.project._id,
+            // Support new { data: { answers, selectedSuggestions } } AND legacy flat format
+            answers: pData.answers || (pData['q1_problem'] ? pData : {}), 
+            selectedSuggestions: pData.selectedSuggestions || {}, 
+            hasUnsavedChanges: false,
+            lastSavedAt: data.project.updatedAt,
+            saveError: null,
+            projects: finalProjects // Update projects array
+          };
         });
       }
     } catch (err) {
       console.error("Failed to load project", err);
     } finally {
       set({ isLoading: false });
+    }
+  },
+
+  /**
+   * refreshProject
+   * Silently re-fetches project data to sync backend state (e.g. after AI research).
+   */
+  refreshProject: async (id, token) => {
+    try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/projects/${id}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+            set((state) => ({
+                projects: state.projects.map(p => 
+                    p._id === id ? data.project : p
+                )
+            }));
+            
+            // Should we update current active state too? Yes, but carefully
+            if (get().currentProjectId === id) {
+                 const pData = data.project.data || {};
+                 set({
+                     answers: pData.answers || (pData['q1_problem'] ? pData : {}),
+                     selectedSuggestions: pData.selectedSuggestions || {}
+                 });
+            }
+        }
+    } catch (err) {
+        console.error("Silent refresh failed", err);
     }
   },
 

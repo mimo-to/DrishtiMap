@@ -18,11 +18,16 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
     const navigate = useNavigate();
     const { projectId } = useParams();
     const [globalError, setGlobalError] = useState(null);
-    const { submitAnswer, answers, selectedSuggestions, toggleSuggestion, clearSelections } = useQuestStore();
+    const { submitAnswer, answers, selectedSuggestions, toggleSuggestion, clearSelections, refreshProject } = useQuestStore();
 
     // Research State
     const [isResearching, setIsResearching] = useState(false);
     const [researchReport, setResearchReport] = useState(null);
+
+    // LOAD SAVED RESEARCH
+    const { projects, currentProjectId } = useQuestStore();
+    const currentProject = projects.find(p => p._id === projectId || p._id === currentProjectId);
+    const savedResearch = currentProject?.data?.research;
 
     const handleResearch = async () => {
         if (!projectId) return;
@@ -35,7 +40,12 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
             const token = await getToken();
             const report = await aiService.generateResearch(projectId, token);
             // report is { reportMarkdown: string, generatedAt: date }
+
+            // Backend now saves it, but we update local state to show it immediately
             setResearchReport(report.reportMarkdown || report);
+
+            // Refresh project data to sync the saved research report
+            await refreshProject(projectId, token);
         } catch (err) {
             console.error("Research Failed:", err);
             setGlobalError("Failed to generate research report. Please try again.");
@@ -44,7 +54,12 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
         }
     };
 
-    // ... existing logic ...
+    // View Saved Report Handler
+    const handleViewSavedReport = () => {
+        if (savedResearch && savedResearch.markdown) {
+            setResearchReport(savedResearch.markdown);
+        }
+    };
 
     // EXTRACT DATA FOR CONTEXT
     const currentLevelData = levelConfig.questions.reduce((acc, q) => {
@@ -66,8 +81,6 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
         isLoading: false,
         error: null
     });
-
-    // ... handleSuggest logic ...
 
     const handleSuggest = async () => {
         setAiState({
@@ -95,14 +108,6 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
             };
 
             const result = await aiService.suggest(levelConfig.id, input, token, fullContext);
-
-            // DEBUG: Inspect Response
-            console.log("AI Service Result:", result);
-            if (result.suggestions) {
-                console.log("Suggestions Array:", result.suggestions);
-            } else {
-                console.warn("Missing suggestions array in result");
-            }
 
             if (result.suggestions && Array.isArray(result.suggestions)) {
                 setAiState({
@@ -182,6 +187,8 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
                             isSaving={isSaving}
                             onResearch={handleResearch}
                             isResearching={isResearching}
+                            savedResearch={savedResearch}
+                            onViewResearch={handleViewSavedReport}
                         />
 
                         <AISuggestionsPanel
@@ -209,6 +216,7 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
                 <ResearchResult
                     report={researchReport}
                     onClose={() => setResearchReport(null)}
+                    projectTitle={currentProject?.title || 'Untitled Project'}
                 />
             )}
         </div>

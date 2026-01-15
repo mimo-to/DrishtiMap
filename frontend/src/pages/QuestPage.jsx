@@ -21,18 +21,26 @@ const QuestPage = () => {
     } = useQuestStore();
 
     const [saveStatus, setSaveStatus] = React.useState(null); // 'saving', 'saved', 'error'
+    const loadedProjectRef = React.useRef(null);
 
     // 0. Hydration (Restore State on Refresh)
     useEffect(() => {
         const hydrate = async () => {
-            if (projectId && projectId !== currentProjectId && userId) {
+            // Only load if:
+            // 1. We have a projectId
+            // 2. It's different from current
+            // 3. We haven't already loaded this project
+            // 4. User is authenticated
+            if (projectId && projectId !== currentProjectId && projectId !== loadedProjectRef.current && userId) {
                 console.log("Hydrating project from URL:", projectId);
+                loadedProjectRef.current = projectId;
                 const token = await getToken();
                 await loadProject(projectId, token);
             }
         };
         hydrate();
-    }, [projectId, userId, currentProjectId, getToken, loadProject]);
+    }, [projectId, userId, currentProjectId, getToken]);
+    // Removed loadProject from dependencies to prevent re-renders
 
     // 1. Calculations
     // Default to first level if undefined

@@ -12,7 +12,12 @@ import ProtectedRoute from './components/layout/ProtectedRoute';
 function App() {
     return (
         <ErrorBoundary>
-            <BrowserRouter>
+            <BrowserRouter
+                future={{
+                    v7_startTransition: true,
+                    v7_relativeSplatPath: true
+                }}
+            >
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/signin/*" element={<SignInPage />} />

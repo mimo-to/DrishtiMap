@@ -4,7 +4,7 @@ import { useQuestStore } from '../engine/useQuestStore';
 import { ExportService } from '../../services/export.service';
 import ExportPreview from './ExportPreview';
 
-const ExportActions = ({ onSave, saveStatus, isSaving, onResearch, isResearching }) => {
+const ExportActions = ({ onSave, saveStatus, isSaving, onResearch, isResearching, savedResearch, onViewResearch }) => {
     // Read-only access to full answers state
     const { answers, projects, currentProjectId } = useQuestStore();
     const [previewType, setPreviewType] = useState(null); // 'json' | 'pdf' | null
@@ -32,7 +32,7 @@ const ExportActions = ({ onSave, saveStatus, isSaving, onResearch, isResearching
     return (
         <div className="mt-8 pt-6 border-t border-gray-100">
             <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
-                Project Actions (Work In Progress)
+                Project Actions
             </h3>
             <div className="flex justify-between items-center">
                 <div className="flex gap-3">
@@ -43,13 +43,7 @@ const ExportActions = ({ onSave, saveStatus, isSaving, onResearch, isResearching
                     >
                         📥 Export JSON
                     </Button>
-                    <Button
-                        variant="outline"
-                        onClick={() => handleExportClick('pdf')}
-                        className="text-xs py-1.5 h-8 text-red-600 border-red-200 hover:bg-red-50"
-                    >
-                        📄 Export PDF
-                    </Button>
+
                 </div>
 
                 {/* Save Progress Button - Far Right */}
@@ -57,13 +51,26 @@ const ExportActions = ({ onSave, saveStatus, isSaving, onResearch, isResearching
                     {saveStatus === 'saved' && <span className="text-green-600 text-xs font-medium animate-fade-in">Saved!</span>}
                     {saveStatus === 'error' && <span className="text-red-600 text-xs font-medium animate-fade-in">Failed</span>}
 
-                    <Button
-                        onClick={onResearch}
-                        disabled={isResearching || isSaving}
-                        className="text-xs py-1.5 h-8 bg-indigo-600 text-white hover:bg-indigo-700 border-indigo-600 shadow-sm"
-                    >
-                        {isResearching ? 'Thinking...' : '✨ Finalize & Research'}
-                    </Button>
+                    {/* Research Actions */}
+                    <div className="flex items-center gap-2">
+                        {savedResearch && (
+                            <Button
+                                variant="outline"
+                                onClick={onViewResearch}
+                                className="text-xs py-1.5 h-8 text-indigo-600 border-indigo-200 hover:bg-indigo-50"
+                            >
+                                📄 Review Strategy Deck
+                            </Button>
+                        )}
+
+                        <Button
+                            onClick={onResearch}
+                            disabled={isResearching || isSaving}
+                            className="text-xs py-1.5 h-8 bg-indigo-600 text-white hover:bg-indigo-700 border-indigo-600 shadow-sm"
+                        >
+                            {isResearching ? 'Thinking...' : savedResearch ? '🔄 Regenerate Deck' : '✨ Finalize & Research'}
+                        </Button>
+                    </div>
 
                     <Button
                         variant={saveStatus === 'saved' ? 'secondary' : 'primary'}
