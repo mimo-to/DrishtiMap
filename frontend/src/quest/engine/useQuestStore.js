@@ -135,6 +135,13 @@ export const useQuestStore = create((set, get) => ({
         const res = await fetch(`${import.meta.env.VITE_API_URL}/projects/${id}`, {
             headers: { Authorization: `Bearer ${token}` }
         });
+        
+        // Check if response is OK before parsing JSON
+        if (!res.ok) {
+            console.error(`Failed to refresh project: ${res.status} ${res.statusText}`);
+            return;
+        }
+        
         const data = await res.json();
         if (data.success) {
             set((state) => ({

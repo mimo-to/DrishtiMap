@@ -152,6 +152,18 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
 
     return (
         <div className="max-w-7xl mx-auto px-4 py-8">
+            {/* Project Name Header */}
+            {currentProject && (
+                <div className="mb-4 pb-3 border-b border-gray-200">
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-gray-500">Project:</span>
+                        <h1 className="text-lg font-bold text-indigo-600">
+                            {currentProject.title || 'Untitled Project'}
+                        </h1>
+                    </div>
+                </div>
+            )}
+
             <div className="flex flex-col lg:flex-row gap-8">
                 {/* Main Content Area */}
                 <div className="flex-1 min-w-0">

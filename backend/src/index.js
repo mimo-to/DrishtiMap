@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const connectDB = require('./config/db');
 const { notFound, errorHandler } = require('./middleware/error.middleware');
+const responseTime = require('./middleware/responseTime.middleware');
 
 // Load env vars
 dotenv.config();
@@ -27,6 +28,9 @@ app.use(express.urlencoded({ extended: true }));
 if (process.env.NODE_ENV !== 'production') {
   app.use(morgan('dev'));
 }
+
+// 5. Response Time Monitoring
+app.use(responseTime);
 
 // Connect to Database
 connectDB();

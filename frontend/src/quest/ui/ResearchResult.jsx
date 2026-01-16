@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Download, FileText, Printer, Share2, Maximize2, Minimize2, ChevronRight, Zap, TrendingUp, CheckCircle, Clock, AlertCircle } from 'lucide-react';
-import html2pdf from 'html2pdf.js';
-import mermaid from 'mermaid';
+// Dynamic imports for heavy libraries (mermaid ~200KB, html2pdf ~150KB)
+// These will only load when actually needed
 
 /**
  * PRODUCTION-READY Mermaid Renderer
@@ -18,6 +18,9 @@ const MermaidDiagram = ({ chart, index }) => {
 
         const renderDiagram = async () => {
             try {
+                // Dynamically import mermaid only when needed (saves ~200KB on initial load)
+                const mermaid = (await import('mermaid')).default;
+
                 // Initialize mermaid if needed
                 mermaid.initialize({
                     startOnLoad: false,
@@ -269,9 +272,9 @@ const ResearchResult = ({ report, onClose, projectTitle }) => {
 
     stats.depthScore = calculateDepth();
 
-    const handleDownloadPDF = () => {
+    const handleDownloadPDF = async () => {
         setDownloadProgress(20);
-        setTimeout(() => {
+        setTimeout(async () => {
             const element = document.getElementById('report-content');
 
             // Generate filename from project title
@@ -299,13 +302,17 @@ const ResearchResult = ({ report, onClose, projectTitle }) => {
                 pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
             };
 
-            html2pdf().set(opt).from(element).save().then(() => {
+            try {
+                // Dynamically import html2pdf only when downloading (saves ~150KB on initial load)
+                const html2pdf = (await import('html2pdf.js')).default;
+
+                await html2pdf().set(opt).from(element).save();
                 setDownloadProgress(100);
                 setTimeout(() => setDownloadProgress(0), 1000);
-            }).catch(err => {
+            } catch (err) {
                 console.error("PDF Fail", err);
                 setDownloadProgress(0);
-            });
+            }
         }, 500);
     };
 

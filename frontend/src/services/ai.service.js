@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:5000/api/ai';
+const API_URL = `${import.meta.env.VITE_API_URL}/ai`;
 
 async function suggest(levelId, input, token, contextData = {}) {
   if (!token) {
