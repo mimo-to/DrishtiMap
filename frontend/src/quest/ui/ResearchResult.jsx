@@ -274,15 +274,17 @@ const ResearchResult = ({ report, onClose, projectTitle }) => {
 
     const handleDownloadPDF = async () => {
         setDownloadProgress(20);
-        setTimeout(async () => {
+
+        try {
             const element = document.getElementById('report-content');
+
+            setDownloadProgress(40);
 
             // Generate filename from project title
             const sanitizeFilename = (title) => {
                 if (!title || title === 'Untitled Project') {
                     return 'Strategic_Project_Report';
                 }
-                // Remove special characters and convert to title case
                 return title
                     .replace(/[^a-zA-Z0-9\s]/g, '')
                     .trim()
@@ -296,24 +298,37 @@ const ResearchResult = ({ report, onClose, projectTitle }) => {
             const opt = {
                 margin: 0.5,
                 filename: filename,
-                image: { type: 'jpeg', quality: 1.0 },
-                html2canvas: { scale: 3, useCORS: true, spacingBottom: 20 },
-                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+                image: { type: 'jpeg', quality: 0.95 },
+                html2canvas: {
+                    scale: 2,
+                    useCORS: false,
+                    allowTaint: true,
+                    logging: false,
+                    backgroundColor: '#ffffff'
+                },
+                jsPDF: {
+                    unit: 'in',
+                    format: 'a4',
+                    orientation: 'portrait',
+                    compress: true
+                },
                 pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
             };
 
-            try {
-                // Dynamically import html2pdf only when downloading (saves ~150KB on initial load)
-                const html2pdf = (await import('html2pdf.js')).default;
+            // Dynamically import html2pdf
+            const html2pdf = (await import('html2pdf.js')).default;
 
-                await html2pdf().set(opt).from(element).save();
-                setDownloadProgress(100);
-                setTimeout(() => setDownloadProgress(0), 1000);
-            } catch (err) {
-                console.error("PDF Fail", err);
-                setDownloadProgress(0);
-            }
-        }, 500);
+            setDownloadProgress(60);
+            await html2pdf().set(opt).from(element).save();
+
+            setDownloadProgress(100);
+            setTimeout(() => setDownloadProgress(0), 1500);
+
+        } catch (err) {
+            console.error("PDF generation failed:", err);
+            alert("Failed to generate PDF. Please try again.");
+            setDownloadProgress(0);
+        }
     };
 
     const handlePrint = () => {
