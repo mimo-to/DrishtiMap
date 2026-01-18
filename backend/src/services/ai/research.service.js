@@ -142,14 +142,22 @@ ${researchIntel}
 
 --- CRITICAL RULES ---
 1. **MANDATORY**: Generate 8+ Mermaid diagrams
-2. **NO SPECIAL CHARS**: Do NOT use parentheses (), brackets [], or quotes "" in Graph/Flowchart node labels.
-3. **PIE CHARTS**: Keys MUST be double-quoted (e.g., "Item": 50).
-4. **NO BAR CHARTS**: Use 'pie' or 'gantt' only. Do NOT use xychart/bar.
-5. **SUBGRAPHS**: IDs must be OneWord (e.g., subgraph HighPower).
-6. **STATE DIAGRAMS**: Use simple 'state "Label" as ID' syntax.
-7. **GANTT TIMELINES**: Use RELATIVE timelines (Month 1-2, Month 3-4, Week 1-4) NOT absolute dates. Start from 2025-01-01 and use 'after' dependencies.
-8. **NO QUADRANT CHARTS**: Do NOT use quadrantChart - use graph TD with subgraphs instead for risk matrices.
-9. **VARIED TYPES**: mindmap, graph, gantt, pie, journey, timeline, stateDiagram-v2.
+2. **NODE NAMES - CRITICAL**: 
+   - Graph/Flowchart nodes MUST use bracket syntax: A[Label Text]
+   - Node IDs must be single words (A, B1, Node1, etc.)
+   - Labels can have spaces but MUST be inside brackets []
+   - WRONG: Budget -->|35%| Purification Systems
+   - CORRECT: Budget -->|35%| B[Purification Systems]
+   - WRONG: A --> Water Treatment
+   - CORRECT: A --> B[Water Treatment]
+3. **NO SPECIAL CHARS**: Do NOT use parentheses (), or quotes "" in node labels.
+4. **PIE CHARTS**: Keys MUST be double-quoted (e.g., "Item": 50).
+5. **NO BAR CHARTS**: Use 'pie' or 'gantt' only. Do NOT use xychart/bar.
+6. **SUBGRAPHS**: IDs must be OneWord (e.g., subgraph HighPower).
+7. **STATE DIAGRAMS**: Use simple 'state "Label" as ID' syntax.
+8. **GANTT TIMELINES**: Use RELATIVE timelines (Month 1-2, Month 3-4, Week 1-4) NOT absolute dates. Start from 2025-01-01 and use 'after' dependencies.
+9. **NO QUADRANT CHARTS**: Do NOT use quadrantChart - use graph TD with subgraphs instead for risk matrices.
+10. **VARIED TYPES**: mindmap, graph, gantt, pie, journey, timeline, stateDiagram-v2.
 
 --- DIAGRAM TOOLKIT ---
 
@@ -322,12 +330,42 @@ graph LR
 4. Use **bold** for key metrics and findings
 5. Add horizontal rules (---) between major sections for visual separation
 
+**CRITICAL INSTRUCTIONS**:
+- DO NOT include an "Executive Insights Dashboard" section
+- DO NOT include metrics cards or statistics dashboard  
+- DO NOT include generic takeaways about diagrams, frameworks, or report structure
+- Key Insights should contain ONLY actual research findings from the analyst intelligence
+
 # 📊 Strategic Impact Report
 
 ## 🎯 Executive Summary
 [2-3 punchy paragraphs synthesizing core insights + blue ocean strategy]
 
 > *For government scheme verification, refer to Sources & References section at the end of this report.*
+
+---
+
+## 💡 Key Research Findings
+
+**CRITICAL**: This section must contain ONLY the most important findings from the Groq research analysis. Include:
+- Government schemes/initiatives identified (with generic categories or placeholders)
+- Market opportunities and trends discovered
+- Geographic/demographic insights from research
+- Risk factors identified in the analysis
+- Partnership opportunities found
+- Each finding should include source references where applicable
+
+Example format:
+- **Government Alignment**: [Specific scheme category or placeholder like "State-level digital education initiatives" with link if available]
+- **Market Opportunity**: [Trend identified from research with data if available]
+- **Risk Factor**: [Specific risk from analyst intelligence]
+- **Partnership Potential**: [Identified collaboration opportunities]
+
+DO NOT include:
+- Generic statements about stakeholder mapping
+- References to diagrams or frameworks in the report
+- Meta-commentary about the report structure
+- Vague statements without research backing
 
 ---
 

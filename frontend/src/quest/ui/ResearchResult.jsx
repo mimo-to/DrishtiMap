@@ -480,57 +480,27 @@ const ResearchResult = ({ report, onClose, projectTitle }) => {
 
                     {activeTab === 'insights' && (
                         <div className="insights-wrapper animate-fade-in-up">
-                            <h2>Executive Insights Dashboard</h2>
+                            <h2>💡 Key Research Findings</h2>
+                            <p style={{ color: '#64748b', marginBottom: '2rem' }}>
+                                Critical insights from AI research analysis including government schemes, market opportunities, and strategic recommendations.
+                            </p>
 
-                            <div className="insight-cards">
-                                <div className="card card-indigo">
-                                    <div className="card-header">
-                                        <h3>Visual Intelligence</h3>
-                                        <TrendingUp size={24} />
-                                    </div>
-                                    <div className="card-value">{stats.diagrams}</div>
-                                    <p>Interactive diagrams</p>
-                                </div>
-
-                                <div className="card card-green">
-                                    <div className="card-header">
-                                        <h3>Analysis Depth</h3>
-                                        <FileText size={24} />
-                                    </div>
-                                    <div className="card-value">{stats.sections}</div>
-                                    <p>Strategic sections</p>
-                                </div>
-
-                                <div className="card card-orange">
-                                    <div className="card-header">
-                                        <h3>Reading Time</h3>
-                                        <Clock size={24} />
-                                    </div>
-                                    <div className="card-value">{stats.readTime} min</div>
-                                    <p>Estimated duration</p>
-                                </div>
-
-                                <div className="card card-pink">
-                                    <div className="card-header">
-                                        <h3>Depth Score</h3>
-                                        <Zap size={24} />
-                                    </div>
-                                    <div className="card-value">{stats.depthScore}</div>
-                                    <p>Completeness rating</p>
-                                </div>
-                            </div>
-
-                            <div className="takeaways">
-                                <h3>
-                                    <CheckCircle size={20} />
-                                    Key Takeaways
-                                </h3>
-                                <ul>
-                                    <li>Multi-dimensional stakeholder ecosystem mapped with power-interest analysis</li>
-                                    <li>Theory of Change framework validated with visual flow diagrams</li>
-                                    <li>Risk intelligence matrix with mitigation strategies across 4 quadrants</li>
-                                    <li>Implementation roadmap with critical milestones and dependencies</li>
-                                </ul>
+                            <div className="research-findings">
+                                <SimpleMarkdown content={
+                                    // Extract Key Research Findings section from the report
+                                    (() => {
+                                        const match = displayReport.match(/##\s*💡\s*Key Research Findings([\s\S]*?)(?=##|$)/i);
+                                        if (match && match[1]) {
+                                            return match[1].trim();
+                                        }
+                                        // Fallback: Show Executive Summary if Key Research Findings not found
+                                        const summaryMatch = displayReport.match(/##\s*🎯\s*Executive Summary([\s\S]*?)(?=##|$)/i);
+                                        if (summaryMatch && summaryMatch[1]) {
+                                            return "**Note**: Key Research Findings section not found. Showing Executive Summary instead.\n\n" + summaryMatch[1].trim();
+                                        }
+                                        return "**No research findings available.** Please regenerate the research report to see detailed insights.";
+                                    })()
+                                } />
                             </div>
                         </div>
                     )}
