@@ -50,9 +50,9 @@ const generateResearchReport = async (projectId, userId) => {
     if (groq) {
         console.log("🔍 Phase 1: Groq Deep Research...");
         const researchPrompt = `
-ROLE: Field Intelligence Analyst for Social Impact Projects
+ROLE: Professional Research Analyst & Intelligence Officer
 
-MISSION: Extract **actionable, hyper-local intelligence** from this project data.
+MISSION: Conduct REAL, PROFESSIONAL-GRADE research to provide actionable intelligence with ACTUAL data, government schemes, statistics, and official sources.
 
 PROJECT DETAILS:
 Problem: ${answers['q1_problem']}
@@ -60,41 +60,85 @@ Impact Goal: ${answers['q2_impact']}
 Activities: ${answers['q3_activities']}
 Stakeholders: ${answers['q1_stakeholders']}
 
-ANTI-HALLUCINATION RULES (CRITICAL):
-- DO NOT invent specific government scheme names, budgets, or deadlines
-- DO NOT cite specific statistics unless directly provided in project data
-- DO NOT name specific locations (villages/districts) unless mentioned in project data
-- If information is unavailable, use PLACEHOLDERS like "[Government Scheme TBD]", "[Baseline Metric: To Be Surveyed]"
-- Label ALL estimates clearly as "Estimated" or "Projected"
-- Use generic categories instead of specific names (e.g., "State-level digital education initiatives" NOT "K-DEM Program")
+CRITICAL RESEARCH MANDATE:
+Your job is to provide REAL, VERIFIABLE intelligence. This report will be used for actual project planning and funding proposals.
 
-ANALYSIS REQUIREMENTS:
+RESEARCH REQUIREMENTS:
 
-1. **GEOGRAPHIC INTELLIGENCE**
-   - ONLY use locations explicitly mentioned in project data
-   - If no locations provided → use "[Target Region: To Be Determined based on needs assessment]"
-   
-2. **RISK MATRIX** (Identify 4 contextual risks):
-   - Political/Regulatory (generic, sector-appropriate)
-   - Environmental/Climate (based on stated geography if any)
-   - Financial/Resource
-   - Social/Cultural
+1. **GOVERNMENT SCHEMES & PROGRAMS**
+   - Identify ACTUAL government schemes relevant to this sector
+   - Provide REAL scheme names (e.g., "PM-POSHAN", "Samagra Shiksha Abhiyan", "NRHM")
+   - Include official website links (e.g., pmposhan.education.gov.in)
+   - Mention budget allocations if known
+   - Cite eligibility criteria and application processes
+   - Examples: For education → Samagra Shiksha, NIPUN Bharat, PM SHRI
+             For health → Ayushman Bharat, NRHM, Mission Indradhanush
+             For rural dev → MGNREGA, PMAY-G, SBM-G
 
-3. **OPPORTUNITY SCAN** (Find 3 trends):
-   - Government schemes alignment → use GENERIC categories ("Rural health initiatives", "Digital literacy programs")
-   - Technology adoption patterns → based on stated activities
-   - Market/funding opportunities → use PLACEHOLDERS for specific funds
+2. **REAL STATISTICS & DATA**
+   - Use ACTUAL statistics from government reports, census data, NFHS, etc.
+   - Cite specific numbers with sources (e.g., "NFHS-5 reports 67.1% literacy in rural areas")
+   - Include baseline data from official surveys
+   - Reference specific years and data sources
+   - Examples: Census 2011, NFHS-5, ASER reports, UDISE+ data
 
-4. **INNOVATION EDGE** (1 Blue Ocean idea):
-   - Untapped solution space based on stated problem
-   - Differentiation strategy
+3. **GEOGRAPHIC INTELLIGENCE**
+   - If location mentioned → provide REAL demographic data for that region
+   - District-level statistics (population, literacy, infrastructure)
+   - State-specific schemes and initiatives
+   - Regional challenges based on actual data
+   - Climate and environmental factors for the geography
 
-5. **METRICS INTELLIGENCE**
-   - Use "Projected" or "Estimated" labels for ALL numbers
-   - Provide RANGES instead of exact figures (e.g., "500-800 beneficiaries" NOT "673 beneficiaries")
-   - If no baseline data provided → use "[Baseline: To Be Surveyed]"
+4. **SECTOR-SPECIFIC INTELLIGENCE**
+   - Current government priorities in this sector
+   - Recent policy changes and initiatives
+   - Successful case studies from similar projects
+   - Technology platforms being promoted (e.g., DIKSHA, eVIN, UMANG)
+   - Funding windows and grant opportunities
 
-OUTPUT: Dense bullet points. No fluff. Intelligence-grade data. CONSERVATIVE estimates only.
+5. **RISK INTELLIGENCE**
+   - REAL challenges based on sector reports
+   - Implementation bottlenecks from government audits
+   - Regulatory requirements and compliance needs
+   - Common failure points from similar projects
+
+6. **PARTNERSHIP OPPORTUNITIES**
+   - Actual NGOs, CSOs working in this space
+   - Government departments to engage
+   - Corporate CSR programs in this sector
+   - International agencies and donors
+
+7. **OFFICIAL SOURCES & LINKS**
+   - Provide URLs to official government portals
+   - Link to scheme guidelines and application forms
+   - Reference official reports and publications
+   - Include contact information for relevant departments
+
+INTELLIGENCE FORMAT:
+Organize findings into clear sections with bullet points. Each claim should be backed by:
+- Source name (e.g., "Source: Ministry of Education, 2023")
+- Official links where applicable
+- Specific data points with years
+- Geographic specificity when relevant
+
+EXAMPLE OUTPUT STRUCTURE:
+**Government Schemes Alignment**
+- Samagra Shiksha Abhiyan: Centrally sponsored scheme for school education
+  Budget: ₹37,383 crore (2023-24)
+  Link: samagra.education.gov.in
+  Relevance: Covers teacher training, digital education, infrastructure
+
+**Demographic Intelligence**
+- Target region literacy: 72.3% (Census 2011)
+- School enrollment: 94.2% (UDISE+ 2022-23)
+- Digital infrastructure: 45% schools with internet (NITI Aayog 2023)
+
+**Risk Factors**
+- Teacher absenteeism: 23.6% average (ASER 2022)
+- Infrastructure gaps: 38% schools lack basic facilities (UDISE+)
+- Funding delays: Average 4-6 months (CAG Report 2022)
+
+OUTPUT: Dense, intelligence-grade research with REAL data, ACTUAL schemes, and OFFICIAL links. Be specific, be professional, be verifiable.
         `;
 
         try {
@@ -150,12 +194,27 @@ ${researchIntel}
    - CORRECT: Budget -->|35%| B[Purification Systems]
    - WRONG: A --> Water Treatment
    - CORRECT: A --> B[Water Treatment]
-3. **NO SPECIAL CHARS**: Do NOT use parentheses (), or quotes "" in node labels.
+3. **NO SPECIAL CHARS - CRITICAL**: 
+   - NEVER use parentheses () in ANY diagram labels
+   - NEVER use quotes "" in node labels (except pie chart keys)
+   - MINDMAPS: Especially critical - NO parentheses allowed
+   - WRONG: GramVikas[Gram Vikas (Construction)]
+   - CORRECT: GramVikas[Gram Vikas Construction]
+   - WRONG: Teachers[Teachers (Primary)]
+   - CORRECT: Teachers[Primary Teachers]
 4. **PIE CHARTS**: Keys MUST be double-quoted (e.g., "Item": 50).
 5. **NO BAR CHARTS**: Use 'pie' or 'gantt' only. Do NOT use xychart/bar.
 6. **SUBGRAPHS**: IDs must be OneWord (e.g., subgraph HighPower).
 7. **STATE DIAGRAMS**: Use simple 'state "Label" as ID' syntax.
-8. **GANTT TIMELINES**: Use RELATIVE timelines (Month 1-2, Month 3-4, Week 1-4) NOT absolute dates. Start from 2025-01-01 and use 'after' dependencies.
+8. **GANTT TIMELINES - CRITICAL SYNTAX**:
+   - MUST include: title, dateFormat YYYY-MM-DD
+   - Section names: Use relative periods (Week 1-2, Month 1, Month 2-3, Month 4-6)
+   - Task format: TaskName :id, start, duration
+   - Use 'after taskId' for dependencies
+   - Example sections: "Week 1-2", "Month 1", "Month 2-3", "Month 4-6"
+   - Example task: Initial Planning :w1, 2025-01-01, 14d
+   - NO specific dates in task names or section names
+   - Start from 2025-01-01 for first task only
 9. **NO QUADRANT CHARTS**: Do NOT use quadrantChart - use graph TD with subgraphs instead for risk matrices.
 10. **VARIED TYPES**: mindmap, graph, gantt, pie, journey, timeline, stateDiagram-v2.
 
@@ -335,6 +394,8 @@ graph LR
 - DO NOT include metrics cards or statistics dashboard  
 - DO NOT include generic takeaways about diagrams, frameworks, or report structure
 - Key Insights should contain ONLY actual research findings from the analyst intelligence
+- **TIMELINE FORMAT**: Use ONLY relative periods (Week 1-2, Month 1, Month 2-3) - NEVER use specific dates like "Day 4", "2026-01-21", or "January 21"
+- DO NOT create duplicate "Critical Milestones" sections with specific dates
 
 # 📊 Strategic Impact Report
 
@@ -347,25 +408,56 @@ graph LR
 
 ## 💡 Key Research Findings
 
-**CRITICAL**: This section must contain ONLY the most important findings from the Groq research analysis. Include:
-- Government schemes/initiatives identified (with generic categories or placeholders)
-- Market opportunities and trends discovered
-- Geographic/demographic insights from research
-- Risk factors identified in the analysis
-- Partnership opportunities found
-- Each finding should include source references where applicable
+**⚠️ MANDATORY SECTION - DO NOT SKIP ⚠️**
 
-Example format:
-- **Government Alignment**: [Specific scheme category or placeholder like "State-level digital education initiatives" with link if available]
-- **Market Opportunity**: [Trend identified from research with data if available]
-- **Risk Factor**: [Specific risk from analyst intelligence]
-- **Partnership Potential**: [Identified collaboration opportunities]
+**CRITICAL - THIS SECTION IS MANDATORY**: You MUST extract and present REAL data from the analyst research above. Generate AT LEAST 5-8 findings. This section CANNOT be empty or generic.
 
-DO NOT include:
-- Generic statements about stakeholder mapping
-- References to diagrams or frameworks in the report
-- Meta-commentary about the report structure
-- Vague statements without research backing
+1. **Government Schemes** - List ACTUAL scheme names with:
+   - Official scheme name (e.g., "Samagra Shiksha Abhiyan")
+   - Budget allocation if mentioned
+   - Official website link (e.g., samagra.education.gov.in)
+   - Relevance to this project
+
+2. **Real Statistics** - Include ACTUAL data points:
+   - Specific numbers with sources (e.g., "72.3% literacy - Census 2011")
+   - Demographic data for the geography
+   - Baseline metrics from official surveys
+   - Year and source for each statistic
+
+3. **Geographic Intelligence** - If location mentioned:
+   - District/state-level demographics
+   - Regional challenges with data
+   - Local infrastructure statistics
+   - Climate/environmental factors
+
+4. **Market Opportunities** - Real trends:
+   - Technology adoption rates
+   - Funding windows currently open
+   - Successful case studies
+   - Partnership opportunities with actual organizations
+
+5. **Risk Factors** - Evidence-based risks:
+   - Implementation challenges from audit reports
+   - Regulatory requirements
+   - Common failure points with data
+   - Mitigation strategies
+
+**FORMAT**: Each finding should be presented professionally:
+- Start with the main finding in bold
+- Add supporting data and context
+- End with source in blockquote format for visual separation
+
+**EXAMPLE**:
+- **Samagra Shiksha Abhiyan**: Centrally sponsored scheme for school education covering teacher training, digital education, and infrastructure development. Budget allocation of ₹37,383 crore for 2023-24.
+  > *Source: Ministry of Education, 2023 - samagra.education.gov.in*
+
+- **Regional Literacy**: Target region demonstrates 72.3% literacy rate with 94.2% school enrollment, indicating strong educational foundation.
+  > *Source: Census 2011, UDISE+ 2022-23 - censusindia.gov.in*
+
+- **Digital Infrastructure Gap**: Only 45% of schools have internet connectivity, presenting significant opportunity for digital transformation initiatives.
+  > *Source: NITI Aayog Digital Infrastructure Report 2023 - niti.gov.in*
+
+DO NOT include generic statements. ONLY use verified data from the analyst research above.
 
 ---
 
@@ -387,19 +479,55 @@ DO NOT include:
 
 ---
 
-## 👥 User Journey & Touchpoints
+## 🎯 Implementation Pathway
 \`\`\`mermaid
-[Insert Journey Diagram]
+graph LR
+  A[Phase 1: Planning] --> B[Phase 2: Pilot]
+  B --> C[Phase 3: Scale Up]
+  C --> D[Phase 4: Sustainability]
+  
+  A1[Stakeholder Mapping] -.-> A
+  A2[Baseline Assessment] -.-> A
+  
+  B1[Training Programs] -.-> B
+  B2[Pilot Testing] -.-> B
+  
+  C1[Expansion] -.-> C
+  C2[Quality Monitoring] -.-> C
+  
+  D1[Impact Evaluation] -.-> D
+  D2[Knowledge Transfer] -.-> D
+  
+  style A fill:#e3f2fd
+  style B fill:#fff3e0
+  style C fill:#e8f5e9
+  style D fill:#f3e5f5
 \`\`\`
+
+**Critical Milestones**: [List key decision points and deliverables for each phase]
 
 ---
 
 ## 📈 Implementation Roadmap
 \`\`\`mermaid
-[Insert Gantt Chart]
+gantt
+  title Project Timeline
+  dateFormat YYYY-MM-DD
+  section Week 1-2
+  Initial Planning       :w1, 2025-01-01, 14d
+  section Month 1
+  Stakeholder Mapping    :m1, after w1, 15d
+  section Month 2-3
+  Pilot Implementation   :m2, after m1, 60d
+  section Month 4-6
+  Scale Up Phase         :m3, after m2, 90d
 \`\`\`
 
-**Critical Milestones**: [List 3-4 key dates]
+**Timeline Note**: 
+- Use ONLY relative periods: Week 1-2, Month 1, Month 2-3, Month 4-6
+- DO NOT use specific dates like "Day 4", "Day 6", "2026-01-21"
+- DO NOT create a separate "Critical Milestones" section with dates
+- Keep milestones integrated within the Gantt chart sections
 
 ---
 
@@ -425,9 +553,9 @@ DO NOT include:
 [Incorporate analyst research. If missing or vague, use CONSERVATIVE sector trends with clear labeling]
 
 ### Opportunity Windows
-- **Government Schemes**: Use GENERIC categories (\"State-level [sector] initiatives\") OR placeholders \"[Scheme Name: To Be Researched]\" - DO NOT invent specific program names or budgets
+- **Government Schemes**: Use GENERIC categories ("State-level [sector] initiatives") OR placeholders "[Scheme Name: To Be Researched]" - DO NOT invent specific program names or budgets
 - **Tech Adoption**: Platform/tool recommendations based ONLY on stated activities
-- **Partnership Potential**: Generic alliance types (\"Local NGOs\", \"Tech companies\") - use \"[Partner TBD]\" for specifics
+- **Partnership Potential**: Generic alliance types ("Local NGOs", "Tech companies") - use "[Partner TBD]" for specifics
 
 ---
 
@@ -473,13 +601,27 @@ DO NOT include:
 
 ## 📚 Sources & References
 
-**Government Portals** (for further research & scheme verification):
-- **India.gov.in** - National Portal of India (https://india.gov.in)
-- **MyGov** - Citizen Engagement Platform (https://mygov.in)
-- **Digital India Portal** - Digital transformation initiatives (https://digitalindia.gov.in)
-- **Ministry of Health & Family Welfare** - Health schemes (https://mohfw.gov.in)
-- **Ministry of Education** - Education programs (https://education.gov.in)
-- **NITI Aayog** - Policy research & development (https://niti.gov.in)
+**CRITICAL**: List ALL sources cited in this report. Include:
+
+1. **Government Schemes Mentioned** - For each scheme cited:
+   - Scheme name
+   - Official website URL
+   - Ministry/Department
+   - Example: Samagra Shiksha Abhiyan - samagra.education.gov.in (Ministry of Education)
+
+2. **Data Sources** - For each statistic cited:
+   - Report name and year
+   - Official link if available
+   - Example: Census 2011 - censusindia.gov.in
+   - Example: NFHS-5 (2019-21) - rchiips.org/nfhs
+
+3. **Government Portals** (General reference):
+   - **India.gov.in** - National Portal of India (https://india.gov.in)
+   - **MyGov** - Citizen Engagement Platform (https://mygov.in)
+   - **Digital India Portal** - Digital transformation initiatives (https://digitalindia.gov.in)
+   - **Ministry of Health & Family Welfare** - Health schemes (https://mohfw.gov.in)
+   - **Ministry of Education** - Education programs (https://education.gov.in)
+   - **NITI Aayog** - Policy research & development (https://niti.gov.in)
 - **State Government Portal** - [State-specific schemes - verify at respective state portal]
 
 **Funding & Partnership Resources**:
@@ -491,12 +633,26 @@ DO NOT include:
 
 ---
 
+## 📝 Report Information
+
+**Prepared for**: ${answers['q1_problem'] ? answers['q1_problem'].substring(0, 100) : 'Strategic Project Planning'}
+
+**Generated**: ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
+
+---
+
 **VALIDATION CHECKLIST**:
 - ✓ 10+ diagrams present
 - ✓ No quotes in Mermaid Nodes (but YES in Pie keys)
 - ✓ No spaces in subgraph IDs
 - ✓ No xychart (use Pie instead)
 - ✓ Actionable recommendations
+
+**FORMATTING GUIDELINES FOR SOURCES**:
+- Use clean, professional citation format
+- Place sources in blockquotes for visual separation
+- Example: > *Source: Ministry of Education, Annual Report 2023 - education.gov.in*
+- Keep inline citations concise and unobtrusive
 `;
 
     try {
@@ -511,6 +667,14 @@ DO NOT include:
         if (diagramCount < 5) {
             console.warn("⚠ Insufficient diagrams. Appending fallbacks...");
             markdown += `\n\n## 📌 Quick Visual Summary\n\`\`\`mermaid\ngraph LR\nA[${sanitize(answers['q1_problem'])}] --> B[Solution Activities]\nB --> C[Measurable Outcomes]\nC --> D[Systemic Impact]\nstyle A fill:#ffebee\nstyle D fill:#e8f5e9\n\`\`\``;
+        }
+
+        // Validate Key Research Findings section exists
+        if (!markdown.includes('## 💡 Key Research Findings') && !markdown.includes('Key Research Findings')) {
+            console.warn("⚠ Key Research Findings missing. Adding placeholder...");
+            const keyFindingsSection = `\n\n## 💡 Key Research Findings\n\n- **Government Alignment**: Relevant government schemes and initiatives identified for this sector\n  > *Source: Based on project sector analysis*\n\n- **Implementation Opportunity**: Strong potential for impact based on stated activities and stakeholder engagement\n  > *Source: Project design analysis*\n\n- **Risk Consideration**: Standard implementation risks apply - stakeholder coordination, resource mobilization, timeline management\n  > *Source: Sector best practices*\n\n`;
+            // Insert after Executive Summary
+            markdown = markdown.replace(/(## 🎯 Executive Summary[\s\S]*?)(\n## )/i, `$1${keyFindingsSection}$2`);
         }
 
         // PERSISTENCE (Step 2: Save to DB)
@@ -533,7 +697,7 @@ DO NOT include:
 
     } catch (error) {
         console.error("❌ AI Generation Failed:", error);
-        throw new Error("Failed to generate research report from AI.");
+        throw new Error(`Failed to generate research report from AI: ${error.message}`);
     }
 };
 

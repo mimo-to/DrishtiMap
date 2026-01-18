@@ -276,7 +276,19 @@ const ResearchResult = ({ report, onClose, projectTitle }) => {
         setDownloadProgress(20);
 
         try {
+            // Ensure we're on the report tab
+            if (activeTab !== 'report') {
+                setActiveTab('report');
+                // Wait for tab to switch and render
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+
             const element = document.getElementById('report-content');
+
+            // Validate element exists
+            if (!element) {
+                throw new Error('Report content not found. Please ensure the report is fully loaded.');
+            }
 
             setDownloadProgress(40);
 
@@ -298,21 +310,18 @@ const ResearchResult = ({ report, onClose, projectTitle }) => {
             const opt = {
                 margin: 0.5,
                 filename: filename,
-                image: { type: 'jpeg', quality: 0.95 },
+                image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: {
-                    scale: 2,
-                    useCORS: false,
-                    allowTaint: true,
+                    scale: 1.8,
                     logging: false,
+                    useCORS: true,
                     backgroundColor: '#ffffff'
                 },
                 jsPDF: {
                     unit: 'in',
                     format: 'a4',
-                    orientation: 'portrait',
-                    compress: true
-                },
-                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+                    orientation: 'portrait'
+                }
             };
 
             // Dynamically import html2pdf
@@ -326,7 +335,8 @@ const ResearchResult = ({ report, onClose, projectTitle }) => {
 
         } catch (err) {
             console.error("PDF generation failed:", err);
-            alert("Failed to generate PDF. Please try again.");
+            const errorMsg = err.message || 'Unknown error';
+            alert(`Failed to generate PDF: ${errorMsg}\n\nPlease try again or check browser console for details.`);
             setDownloadProgress(0);
         }
     };
