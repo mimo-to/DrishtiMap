@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Download, FileText, Printer, Share2, Maximize2, Minimize2, ChevronRight, Zap, TrendingUp, CheckCircle, Clock, AlertCircle } from 'lucide-react';
-// Dynamic imports for heavy libraries (mermaid ~200KB, html2pdf ~150KB)
-// These will only load when actually needed
+import mermaid from 'mermaid'; // Static import for stability
 
 /**
  * PRODUCTION-READY Mermaid Renderer
@@ -11,21 +10,20 @@ const MermaidDiagram = ({ chart, index }) => {
     const [status, setStatus] = useState('loading');
     const [svg, setSvg] = useState('');
     const containerRef = useRef(null);
-    const uniqueId = useRef(`mermaid-${index}-${Date.now()}`).current;
+    // Sanitize ID to ensure valid selector (remove dashes/spaces if needed, but simple is better)
+    const uniqueId = useRef(`mermaid-${index}`).current;
 
     useEffect(() => {
         let mounted = true;
 
         const renderDiagram = async () => {
             try {
-                // Dynamically import mermaid only when needed (saves ~200KB on initial load)
-                const mermaid = (await import('mermaid')).default;
-
-                // Initialize mermaid if needed
+                // Initialize mermaid once
                 mermaid.initialize({
                     startOnLoad: false,
                     theme: 'default',
                     securityLevel: 'loose',
+                    fontFamily: 'Inter, sans-serif',
                     themeVariables: {
                         primaryColor: '#0d9488',
                         primaryTextColor: '#1e293b',
@@ -34,10 +32,16 @@ const MermaidDiagram = ({ chart, index }) => {
                         secondaryColor: '#e0e7ff',
                         tertiaryColor: '#f1f5f9'
                     },
-                    suppressErrorRendering: true
+                    suppressErrorRendering: true // We handle errors ourselves
                 });
 
-                // Render with error handling
+                // Validate chart content
+                if (!chart || chart.trim().length === 0) {
+                    throw new Error("Empty chart content");
+                }
+
+                // Render
+                // Note: v10+ render returns { svg }
                 const { svg: renderedSvg } = await mermaid.render(uniqueId, chart);
 
                 if (mounted) {
