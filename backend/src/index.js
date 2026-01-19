@@ -2,7 +2,6 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const helmet = require('helmet');
-const morgan = require('morgan');
 const connectDB = require('./config/db');
 const { notFound, errorHandler } = require('./middleware/error.middleware');
 const responseTime = require('./middleware/responseTime.middleware');
@@ -26,6 +25,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // 4. Logging (Dev only)
 if (process.env.NODE_ENV !== 'production') {
+  const morgan = require('morgan');
   app.use(morgan('dev'));
 }
 
