@@ -32,4 +32,11 @@ lerna-debug.log*
 .vscode/
 
 # Large files
-*.pdf
+
+# User Requested Ignores
+Sikshalaksham/
+API_DOCUMENTATION.md
+DEPLOYMENT.md
+frontendsetup.txt
+QWEN.md
+TESTING.md 
