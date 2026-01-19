@@ -9,7 +9,7 @@ const MainLayout = () => {
             {/* Header */}
             <header className="bg-white shadow-sm border-b border-gray-200 relative z-10">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-                    <Link to="/" className="font-bold text-xl text-indigo-600 hover:text-indigo-700 transition-colors">
+                    <Link to="/" className="font-bold text-xl font-display text-teal-700 hover:text-teal-800 transition-colors">
                         DrishtiMap
                     </Link>
                     <nav className="flex items-center space-x-4">

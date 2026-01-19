@@ -1,5 +1,6 @@
 import React from 'react';
 import Button from '../../components/ui/Button';
+import { Sparkles } from 'lucide-react';
 
 const QuestControls = ({ onNext, onBack, onSuggest, isFirst, isLast }) => {
     return (
@@ -11,8 +12,9 @@ const QuestControls = ({ onNext, onBack, onSuggest, isFirst, isLast }) => {
                         Back
                     </Button>
                 )}
-                <Button variant="outline" onClick={onSuggest} className="border-blue-200 text-blue-700 hover:bg-blue-50">
-                    ✨ Get Suggestion
+                <Button variant="outline" onClick={onSuggest} className="border-teal-200 text-teal-700 hover:bg-teal-50 font-display">
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Get Suggestion
                 </Button>
             </div>
 

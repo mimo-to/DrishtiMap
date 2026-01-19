@@ -33,7 +33,13 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
         if (!projectId) return;
 
         // Auto-save first to ensure AI has latest data
-        if (onSave) await onSave();
+        if (onSave) {
+            const saved = await onSave();
+            if (!saved) {
+                setGlobalError("Could not save project data. Research generation aborted.");
+                return;
+            }
+        }
 
         setIsResearching(true);
         try {
@@ -46,9 +52,14 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
 
             // Refresh project data to sync the saved research report
             await refreshProject(projectId, token);
-        } catch (err) {
-            console.error("Research Failed:", err);
-            setGlobalError("Failed to generate research report. Please try again.");
+        } catch (error) {
+            console.error("Research Error:", error);
+
+            if (error.message.includes('VS_QUOTA_EXCEEDED')) {
+                setGlobalError("🚨 Daily AI Research Limit Reached. Please try again tomorrow! (Free Tier Limit)");
+            } else {
+                setGlobalError("Failed to generate research report. Please try again.");
+            }
         } finally {
             setIsResearching(false);
         }
@@ -157,7 +168,7 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
                 <div className="mb-4 pb-3 border-b border-gray-200">
                     <div className="flex items-center gap-2">
                         <span className="text-sm font-medium text-gray-500">Project:</span>
-                        <h1 className="text-lg font-bold text-indigo-600">
+                        <h1 className="text-lg font-bold font-display text-teal-700">
                             {currentProject.title || 'Untitled Project'}
                         </h1>
                     </div>

@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+import colors from 'tailwindcss/colors';
+
 export default {
   content: [
     "./index.html",
@@ -6,21 +8,33 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        display: ['Plus Jakarta Sans', 'sans-serif'],
+        body: ['Crimson Pro', 'Georgia', 'serif'],
+        mono: ['JetBrains Mono', 'Courier New', 'monospace']
+      },
       colors: {
-        primary: {
-          DEFAULT: '#4f46e5', // Indigo-600 (Action)
-          hover: '#4338ca',   // Indigo-700
-          light: '#e0e7ff',   // Indigo-100
-        },
-        secondary: {
-          DEFAULT: '#64748b', // Slate-500 (Neutral)
-          hover: '#475569',   // Slate-600
-          light: '#f1f5f9',   // Slate-100
-        },
-        success: '#10b981',   // Emerald-500
-        danger: '#ef4444',    // Red-500
-        background: '#f9fafb', // Gray-50
-        surface: '#ffffff',    // White
+        // Use Tailwind's built-in colors for consistency
+        stone: colors.stone,
+        teal: colors.teal,
+        yellow: colors.yellow,
+        green: colors.green,
+        orange: colors.orange,
+        red: colors.red,
+        
+        // Custom semantic colors mapped to CSS variables
+        'bg-primary': 'var(--color-bg-primary)',
+        'bg-secondary': 'var(--color-bg-secondary)',
+        'text-primary': 'var(--color-text-primary)',
+        'text-secondary': 'var(--color-text-secondary)',
+        'accent-teal': 'var(--color-accent-teal)',
+        'accent-mustard': 'var(--color-accent-mustard)',
+      },
+      boxShadow: {
+        'sm': 'var(--shadow-sm)',
+        'md': 'var(--shadow-md)',
+        'lg': 'var(--shadow-lg)',
+        'xl': 'var(--shadow-xl)',
       }
     },
   },

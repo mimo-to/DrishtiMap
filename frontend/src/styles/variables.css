@@ -1,0 +1,62 @@
+:root {
+  /* 
+   * COLOR PALETTE: Warm Stone & Teal
+   * Using HSL for better manipulation
+   */
+  
+  /* Primary Brand (Teal) */
+  --primary-50: 237 100% 97%;   /* #f0fdfa */
+  --primary-100: 173 94% 93%;   /* #ccfbf1 */
+  --primary-200: 174 85% 85%;   /* #99f6e4 */
+  --primary-300: 172 77% 73%;   /* #5eead4 */
+  --primary-400: 171 72% 58%;   /* #2dd4bf */
+  --primary-500: 170 69% 38%;   /* #14b8a6 */
+  --primary-600: 171 70% 32%;   /* #0d9488 */
+  --primary-700: 172 63% 25%;   /* #0f766e */
+  --primary-800: 172 56% 21%;   /* #115e59 */
+  --primary-900: 172 50% 19%;   /* #134e4a */
+
+  /* Secondary (Warm Stone / Gray) */
+  --stone-50: 60 4.8% 95.9%;
+  --stone-100: 60 4.8% 95.9%;
+  --stone-200: 24 5.4% 63.9%;
+  --stone-300: 24 5.7% 82.9%;
+  --stone-400: 24 5.9% 10%;
+  --stone-500: 25 5.3% 44.7%;
+  --stone-600: 33.3 5.5% 32.4%;
+  --stone-700: 30 6.3% 25.1%;
+  --stone-800: 12 6.5% 15.1%;
+  --stone-900: 24 5.4% 63.9%;
+
+  /* Status Colors */
+  --success: 142 76% 36%;
+  --warning: 38 92% 50%;
+  --error: 0 84% 60%;
+  --info: 217 91% 60%;
+
+  /* Radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* Shadows (Premium Soft Shadows) */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-inner: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+  
+  /* Glassmorphism */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-blur: 12px;
+}
+
+/* Dark Mode Tokens (Future Proofing) */
+.dark {
+  --glass-bg: rgba(15, 23, 42, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.1);
+}

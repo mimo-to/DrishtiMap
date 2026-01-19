@@ -20,7 +20,7 @@ const ProjectTimeline = ({ currentLevelId, onJumpToLevel }) => {
 
             <div className="relative">
                 {/* Vertical Line Container */}
-                <div className="absolute left-4 top-2 bottom-2 w-0.5 bg-gray-200" aria-hidden="true" />
+                <div className="absolute left-4 top-2 bottom-2 w-0.5 bg-stone-200" aria-hidden="true" />
 
                 <div className="space-y-8 relative">
                     {LEVELS.map((level, index) => {
@@ -33,8 +33,8 @@ const ProjectTimeline = ({ currentLevelId, onJumpToLevel }) => {
                                 {/* Node Indicator */}
                                 <div
                                     className={`absolute left-0 w-8 h-8 rounded-full border-2 flex items-center justify-center z-10 bg-white transition-colors cursor-pointer
-                                        ${isActive ? 'border-indigo-600 text-indigo-600' :
-                                            isCompleted ? 'border-green-500 text-green-500' : 'border-gray-300 text-gray-400'}
+                                        ${isActive ? 'border-teal-700 text-teal-700' :
+                                            isCompleted ? 'border-green-500 text-green-500' : 'border-stone-300 text-stone-400'}
                                     `}
                                     onClick={() => onJumpToLevel && onJumpToLevel(level.id)}
                                 >
@@ -44,8 +44,8 @@ const ProjectTimeline = ({ currentLevelId, onJumpToLevel }) => {
                                 {/* Content */}
                                 <div className="min-h-[3rem]">
                                     <div
-                                        className={`text-sm font-semibold mb-2 cursor-pointer
-                                            ${isActive ? 'text-indigo-700' : 'text-gray-700 hover:text-indigo-600'}
+                                        className={`text-sm font-display font-semibold mb-2 cursor-pointer
+                                            ${isActive ? 'text-teal-700' : 'text-stone-700 hover:text-teal-700'}
                                         `}
                                         onClick={() => onJumpToLevel && onJumpToLevel(level.id)}
                                     >
@@ -58,16 +58,16 @@ const ProjectTimeline = ({ currentLevelId, onJumpToLevel }) => {
                                             {selections.map((item, idx) => (
                                                 <div
                                                     key={idx}
-                                                    className="bg-indigo-50 border border-indigo-100 rounded-md p-2 text-xs text-gray-700 shadow-sm relative group animate-fade-in-up"
+                                                    className="bg-teal-50 border border-teal-100 rounded-md p-2 text-xs font-body text-stone-700 shadow-sm relative group animate-fade-in-up"
                                                 >
                                                     {/* Little Connector Arrow for cards */}
                                                     {idx > 0 && (
-                                                        <div className="absolute -top-3 left-4 text-indigo-200">
+                                                        <div className="absolute -top-3 left-4 text-teal-200">
                                                             <ArrowDown size={12} />
                                                         </div>
                                                     )}
 
-                                                    <div className="font-medium text-indigo-900 mb-0.5">
+                                                    <div className="font-medium font-display text-teal-900 mb-0.5">
                                                         {item.title || item.suggestion || "Selected Idea"}
                                                     </div>
                                                     <div className="line-clamp-2 opacity-80">
@@ -78,7 +78,7 @@ const ProjectTimeline = ({ currentLevelId, onJumpToLevel }) => {
                                         </div>
                                     ) : (
                                         isActive && (
-                                            <div className="text-xs text-gray-400 italic border border-dashed border-gray-200 rounded p-2">
+                                            <div className="text-xs font-body text-stone-400 italic border border-dashed border-stone-200 rounded p-2">
                                                 Select AI suggestions to build your timeline...
                                             </div>
                                         )

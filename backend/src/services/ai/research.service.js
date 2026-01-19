@@ -655,10 +655,54 @@ gantt
 - Keep inline citations concise and unobtrusive
 `;
 
+    // MERMAID SANITIZER FUNCTION
+    const fixMermaidSyntax = (markdown) => {
+        if (!markdown) return markdown;
+        
+        console.log("🧹 Sanitizing Markdown...");
+
+        // 1. Remove "VALIDATION CHECKLIST" and everything after it
+        const checklistMarker = "**VALIDATION CHECKLIST**:";
+        if (markdown.includes(checklistMarker)) {
+            markdown = markdown.split(checklistMarker)[0];
+        }
+        
+        // Regex to find mermaid blocks: ```mermaid ... ```
+        const mermaidRegex = /```mermaid([\s\S]*?)```/g;
+        
+        return markdown.replace(mermaidRegex, (match, code) => {
+            // Keep the wrapper, clean the content
+            let cleanCode = code
+                // 1. Remove parentheses from Node Definitions: A[Label (Text)] -> A[Label Text]
+                .replace(/\(/g, ' ')
+                .replace(/\)/g, ' ')
+                // 2. Fix potential broken arrows if AI adds spaces inside -.->
+                .replace(/- \. - >/g, '-.->')
+                // 3. Remove quotes in [Label "Text"] which might break flowcharts
+                .replace(/\["([^"]*)"\]/g, '[$1]')
+                // 4. Remove any other bracket text quotes " " inside brackets
+                .replace(/\[.*?"(.*?)"\]/g, '[$1]')
+                // 5. Remove "milestone" from Gantt charts
+                .replace(/:\s*milestone\s*,/gi, ':')
+                // 6. Fix "Scale-up" -> "Scale_up" in State Diagrams (Hyphens in IDs break it)
+                // Replace hyphens in "Word-Word" patterns
+                .replace(/\b([a-zA-Z]+)-([a-zA-Z]+)\b/g, '$1_$2')
+                // 7. RESTORE Specific Keywords/Formats broken by rule #6
+                .replace(/stateDiagram_v2/g, 'stateDiagram-v2') 
+                .replace(/flowchart_v2/g, 'flowchart-v2');
+
+
+            return `\`\`\`mermaid${cleanCode}\`\`\``;
+        });
+    };
+
     try {
         const result = await model.generateContent(visualPrompt);
         const response = await result.response;
         let markdown = response.text();
+        
+        // SANITIZE SYNTAX BEFORE SAVING
+        markdown = fixMermaidSyntax(markdown);
 
         // QUALITY ASSURANCE
         const diagramCount = (markdown.match(/```mermaid/g) || []).length;
@@ -697,6 +741,12 @@ gantt
 
     } catch (error) {
         console.error("❌ AI Generation Failed:", error);
+        
+        // Handle Quota Errors Specifically
+        if (error.message.includes('429') || error.message.includes('Quota') || error.message.includes('quota')) {
+            throw new Error('VS_QUOTA_EXCEEDED');
+        }
+        
         throw new Error(`Failed to generate research report from AI: ${error.message}`);
     }
 };

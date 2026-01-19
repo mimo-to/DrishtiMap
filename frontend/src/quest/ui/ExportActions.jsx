@@ -3,6 +3,7 @@ import Button from '../../components/ui/Button';
 import { useQuestStore } from '../engine/useQuestStore';
 import { ExportService } from '../../services/export.service';
 import ExportPreview from './ExportPreview';
+import { Download, FileText, RefreshCw, Sparkles, Check } from 'lucide-react';
 
 const ExportActions = ({ onSave, saveStatus, isSaving, onResearch, isResearching, savedResearch, onViewResearch }) => {
     // Read-only access to full answers state
@@ -41,14 +42,15 @@ const ExportActions = ({ onSave, saveStatus, isSaving, onResearch, isResearching
                         onClick={() => handleExportClick('json')}
                         className="text-xs py-1.5 h-8"
                     >
-                        📥 Export JSON
+                        <Download className="w-3.5 h-3.5 mr-1.5 inline-block" />
+                        Export JSON
                     </Button>
 
                 </div>
 
                 {/* Save Progress Button - Far Right */}
                 <div className="flex items-center gap-3">
-                    {saveStatus === 'saved' && <span className="text-green-600 text-xs font-medium animate-fade-in">Saved!</span>}
+                    {saveStatus === 'saved' && <span className="text-green-600 text-xs font-medium animate-fade-in flex items-center"><Check className="w-3 h-3 mr-1" />Saved!</span>}
                     {saveStatus === 'error' && <span className="text-red-600 text-xs font-medium animate-fade-in">Failed</span>}
 
                     {/* Research Actions */}
@@ -57,18 +59,24 @@ const ExportActions = ({ onSave, saveStatus, isSaving, onResearch, isResearching
                             <Button
                                 variant="outline"
                                 onClick={onViewResearch}
-                                className="text-xs py-1.5 h-8 text-indigo-600 border-indigo-200 hover:bg-indigo-50"
                             >
-                                📄 Review Strategy Deck
+                                <FileText className="w-3.5 h-3.5 mr-1.5 inline-block" />
+                                Review Strategy Deck
                             </Button>
                         )}
 
                         <Button
                             onClick={onResearch}
                             disabled={isResearching || isSaving}
-                            className="text-xs py-1.5 h-8 bg-indigo-600 text-white hover:bg-indigo-700 border-indigo-600 shadow-sm"
+                            className="text-xs py-1.5 h-8 bg-teal-700 text-white hover:bg-teal-800 border-teal-700 shadow-sm"
                         >
-                            {isResearching ? 'Thinking...' : savedResearch ? '🔄 Regenerate Deck' : '✨ Finalize & Research'}
+                            {isResearching ? (
+                                <span className="flex items-center"><RefreshCw className="w-3.5 h-3.5 mr-1.5 animate-spin" />Thinking...</span>
+                            ) : savedResearch ? (
+                                <span className="flex items-center"><RefreshCw className="w-3.5 h-3.5 mr-1.5" />Regenerate Deck</span>
+                            ) : (
+                                <span className="flex items-center"><Sparkles className="w-3.5 h-3.5 mr-1.5" />Finalize & Research</span>
+                            )}
                         </Button>
                     </div>
 

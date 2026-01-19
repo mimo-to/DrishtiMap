@@ -1,57 +1,67 @@
-import React from 'react';
+import { Loader2 } from 'lucide-react';
 
-const Button = ({
+export const Button = ({
     children,
-    onClick,
-    type = 'button',
     variant = 'primary',
     size = 'md',
-    fullWidth = false,
+    loading = false,
     disabled = false,
-    isLoading = false,
     className = '',
     ...props
 }) => {
-    // Base styles
-    const baseStyles = 'inline-flex items-center justify-center border font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors';
+    const baseStyles = `
+    inline-flex items-center justify-center gap-2
+    font-display font-medium rounded-lg
+    transform transition-all duration-300 ease-[var(--ease-smooth)]
+    focus:outline-none focus:ring-2 focus:ring-offset-2
+    disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none
+  `;
 
-    // Variants
     const variants = {
-        primary: 'border-transparent text-white bg-primary hover:bg-primary-hover focus:ring-primary',
-        secondary: 'border-transparent text-white bg-secondary hover:bg-secondary-hover focus:ring-secondary',
-        danger: 'border-transparent text-white bg-danger hover:bg-red-600 focus:ring-danger',
-        outline: 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-primary',
+        primary: `
+      bg-gradient-to-br from-stone-900 to-stone-800
+      text-white hover:shadow-xl
+      hover:scale-105 active:scale-95
+      focus:ring-stone-500
+    `,
+        secondary: `
+      bg-white border-2 border-stone-200
+      text-stone-900 hover:border-stone-400 hover:shadow-md
+      hover:scale-105 active:scale-95
+      focus:ring-stone-300
+    `,
+        teal: `
+      bg-gradient-to-br from-teal-700 to-teal-600
+      text-white hover:shadow-xl
+      hover:scale-105 active:scale-95
+      focus:ring-teal-500
+    `,
+        ghost: `
+      bg-transparent text-stone-700
+      hover:bg-stone-100
+      focus:ring-stone-300
+    `,
+        danger: `
+      bg-gradient-to-br from-red-600 to-red-500
+      text-white hover:shadow-xl
+      hover:scale-105 active:scale-95
+      focus:ring-red-500
+    `
     };
 
-    // Sizes
     const sizes = {
-        sm: 'px-3 py-1.5 text-sm',
-        md: 'px-4 py-2 text-sm',
-        lg: 'px-6 py-3 text-base',
+        sm: 'px-4 py-2 text-sm',
+        md: 'px-6 py-3 text-base',
+        lg: 'px-8 py-4 text-lg'
     };
-
-    // State styles
-    const disabledStyles = (disabled || isLoading)
-        ? 'opacity-75 cursor-not-allowed'
-        : '';
-
-    const widthStyles = fullWidth ? 'w-full' : '';
 
     return (
         <button
-            type={type}
-            onClick={onClick}
-            disabled={disabled || isLoading}
-            className={`
-        ${baseStyles}
-        ${variants[variant]}
-        ${sizes[size]}
-        ${widthStyles}
-        ${disabledStyles}
-        ${className}
-      `}
+            className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`}
+            disabled={disabled || loading}
             {...props}
         >
+            {loading && <Loader2 className="animate-spin" size={18} />}
             {children}
         </button>
     );

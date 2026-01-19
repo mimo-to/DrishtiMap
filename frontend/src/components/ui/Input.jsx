@@ -1,50 +1,44 @@
-import React, { forwardRef } from 'react';
-import Label from './Label';
-
-const Input = forwardRef(({
+export const Input = ({
     label,
-    id,
-    type = 'text',
     error,
+    success,
     helperText,
     className = '',
     ...props
-}, ref) => {
-    // Restrict to text-like inputs
-    const allowedTypes = ['text', 'email', 'password'];
-    const inputType = allowedTypes.includes(type) ? type : 'text';
+}) => {
+    const borderColor = error
+        ? 'border-red-500 focus:ring-red-500'
+        : success
+            ? 'border-green-500 focus:ring-green-500'
+            : 'border-stone-200 focus:ring-teal-500';
 
     return (
-        <div className="w-full">
-            {label && <Label htmlFor={id} className="mb-1">{label}</Label>}
-
-            <div className="relative">
-                <input
-                    ref={ref}
-                    id={id}
-                    type={inputType}
-                    className={`
-            block w-full rounded-md shadow-sm sm:text-sm
-            border-gray-300 focus:border-primary focus:ring-primary
-            disabled:bg-gray-100 disabled:text-gray-500
-            ${error ? 'border-danger focus:border-danger focus:ring-danger' : ''}
-            ${className}
-          `}
-                    {...props}
-                />
-            </div>
-
-            {error && (
-                <p className="mt-1 text-sm text-danger">{error}</p>
+        <div className="space-y-2">
+            {label && (
+                <label className="block text-sm font-medium text-stone-700 font-display">
+                    {label}
+                </label>
             )}
-
-            {!error && helperText && (
-                <p className="mt-1 text-sm text-gray-500">{helperText}</p>
+            <input
+                className={`
+          w-full px-4 py-3 rounded-lg
+          border-2 ${borderColor}
+          bg-white text-stone-900
+          font-body
+          transition-all duration-200
+          focus:outline-none focus:ring-2 focus:ring-offset-2
+          placeholder:text-stone-400
+          ${className}
+        `}
+                {...props}
+            />
+            {helperText && !error && !success && (
+                <p className="text-sm text-stone-500 font-body">{helperText}</p>
             )}
+            {error && <p className="text-sm text-red-600 font-body">{error}</p>}
+            {success && <p className="text-sm text-green-600 font-body">{success}</p>}
         </div>
     );
-});
-
-Input.displayName = 'Input';
+};
 
 export default Input;

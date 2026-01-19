@@ -188,7 +188,9 @@ export const useQuestStore = create((set, get) => ({
           // Wrap main data
           data: {
               answers,
-              selectedSuggestions
+              selectedSuggestions,
+              // Critical: Preserve research data if it exists in the current project state
+              research: get().projects.find(p => p._id === currentProjectId)?.data?.research
           },
           // Send Metadata
           meta: {

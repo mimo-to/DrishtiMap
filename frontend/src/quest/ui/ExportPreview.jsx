@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { AlertTriangle } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import { LEVELS } from '../config/levels';
 import { ExportService } from '../../services/export.service';
@@ -82,7 +83,7 @@ const ExportPreview = ({ isOpen, onClose, answers, exportType }) => {
             <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
 
                 {/* HEAD: Version & Title */}
-                <div className="bg-gray-50 border-b border-gray-100 p-6 flex justify-between items-center">
+                <div className="bg-stone-50 border-b border-stone-100 p-6 flex justify-between items-center">
                     <div>
                         <h2 className="text-xl font-bold text-gray-800">Review Before Export</h2>
                         <div className="text-xs text-gray-400 mt-1 font-mono">
@@ -95,8 +96,8 @@ const ExportPreview = ({ isOpen, onClose, answers, exportType }) => {
                             Quality Score
                         </span>
                         <div className={`text-2xl font-bold ${score >= 80 ? 'text-green-600' :
-                                score >= 50 ? 'text-yellow-600' :
-                                    'text-red-600'
+                            score >= 50 ? 'text-yellow-600' :
+                                'text-red-600'
                             }`}>
                             {score}/100
                         </div>
@@ -110,7 +111,8 @@ const ExportPreview = ({ isOpen, onClose, answers, exportType }) => {
                     {warnings.length > 0 && (
                         <div className="bg-orange-50 border border-orange-100 rounded-lg p-4 mb-6">
                             <h4 className="text-sm font-bold text-orange-800 mb-2 flex items-center gap-2">
-                                ⚠️ Advisory Warnings
+                                <AlertTriangle className="w-4 h-4" />
+                                Advisory Warnings
                             </h4>
                             <ul className="space-y-1">
                                 {warnings.map((w, idx) => (
@@ -127,7 +129,7 @@ const ExportPreview = ({ isOpen, onClose, answers, exportType }) => {
                     <div className="space-y-8">
                         {content.map((level, lIdx) => (
                             <div key={lIdx}>
-                                <h3 className="text-sm font-bold text-blue-600 border-b border-blue-50 pb-2 mb-3">
+                                <h3 className="text-sm font-bold font-display text-teal-800 border-b border-stone-200 pb-2 mb-3">
                                     {level.title.toUpperCase()}
                                 </h3>
                                 <div className="space-y-4">
@@ -137,8 +139,8 @@ const ExportPreview = ({ isOpen, onClose, answers, exportType }) => {
                                                 {item.prompt}
                                             </div>
                                             <div className={`p-3 rounded-lg border ${item.isMissing
-                                                    ? 'bg-gray-50 border-gray-100 text-gray-400 italic'
-                                                    : 'bg-white border-gray-200 text-gray-800'
+                                                ? 'bg-stone-50 border-stone-100 text-stone-400 italic'
+                                                : 'bg-white border-gray-200 text-gray-800'
                                                 }`}>
                                                 {item.answer}
                                             </div>

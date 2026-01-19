@@ -27,9 +27,9 @@ const MermaidDiagram = ({ chart, index }) => {
                     theme: 'default',
                     securityLevel: 'loose',
                     themeVariables: {
-                        primaryColor: '#6366f1',
+                        primaryColor: '#0d9488',
                         primaryTextColor: '#1e293b',
-                        primaryBorderColor: '#4f46e5',
+                        primaryBorderColor: '#0f766e',
                         lineColor: '#94a3b8',
                         secondaryColor: '#e0e7ff',
                         tertiaryColor: '#f1f5f9'
@@ -108,13 +108,13 @@ const MermaidDiagram = ({ chart, index }) => {
                     flex-direction: column;
                     align-items: center;
                     gap: 1rem;
-                    color: #6366f1;
+                    color: #0d9488;
                 }
                 .spinner {
                     width: 40px;
                     height: 40px;
                     border: 4px solid #e0e7ff;
-                    border-top-color: #6366f1;
+                    border-top-color: #0d9488;
                     border-radius: 50%;
                     animation: spin 1s linear infinite;
                 }
@@ -123,7 +123,7 @@ const MermaidDiagram = ({ chart, index }) => {
                 }
                 .diagram-fallback {
                     background: linear-gradient(135deg, #f0f4ff 0%, #e8eeff 100%);
-                    border: 2px dashed #6366f1;
+                    border: 2px dashed #0d9488;
                     border-radius: 12px;
                     padding: 2rem;
                     text-align: center;
@@ -132,7 +132,7 @@ const MermaidDiagram = ({ chart, index }) => {
                 .diagram-type {
                     font-size: 1.5rem;
                     font-weight: 700;
-                    color: #4f46e5;
+                    color: #0f766e;
                     margin-bottom: 1rem;
                 }
                 .diagram-preview {
@@ -552,7 +552,7 @@ const ResearchResult = ({ report, onClose, projectTitle }) => {
                 
                 /* Header */
                 .modal-header {
-                    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+                    background: linear-gradient(135deg, #0d9488 0%, #2dd4bf 100%);
                     color: white;
                 }
                 .header-top {
@@ -634,7 +634,7 @@ const ResearchResult = ({ report, onClose, projectTitle }) => {
                     gap: 0.5rem;
                     padding: 0.5rem 1.25rem;
                     background: white;
-                    color: #6366f1;
+                    color: #0d9488;
                     border: none;
                     border-radius: 8px;
                     font-weight: 600;
@@ -694,7 +694,7 @@ const ResearchResult = ({ report, onClose, projectTitle }) => {
                 }
                 .tab-nav button.active {
                     background: white;
-                    color: #6366f1;
+                    color: #0d9488;
                 }
                 
                 /* Body */
@@ -721,7 +721,7 @@ const ResearchResult = ({ report, onClose, projectTitle }) => {
                 .report-cover {
                     text-align: center;
                     padding-bottom: 2rem;
-                    border-bottom: 4px solid #6366f1;
+                    border-bottom: 4px solid #0d9488;
                     margin-bottom: 3rem;
                 }
                 .cover-icon {
@@ -730,7 +730,7 @@ const ResearchResult = ({ report, onClose, projectTitle }) => {
                     background: #e0e7ff;
                     border-radius: 50%;
                     margin-bottom: 1rem;
-                    color: #6366f1;
+                    color: #0d9488;
                 }
                 .report-cover h1 {
                     font-size: 2.5rem;
@@ -791,7 +791,7 @@ const ResearchResult = ({ report, onClose, projectTitle }) => {
                     gap: 0.5rem;
                 }
                 .header-icon {
-                    color: #6366f1;
+                    color: #0d9488;
                 }
                 .markdown-content h3 {
                     font-size: 1.25rem;
@@ -810,15 +810,21 @@ const ResearchResult = ({ report, onClose, projectTitle }) => {
                     margin: 0.5rem 0;
                 }
                 .markdown-content strong {
-                    color: #6366f1;
-                    font-weight: 600;
+                    background: linear-gradient(120deg, rgba(255, 226, 8, 0.4) 0%, rgba(255, 226, 8, 0.1) 100%);
+                    box-shadow: inset 0 -0.5em 0 rgba(255, 226, 8, 0.2);
+                    padding: 0 0.25rem;
+                    border-radius: 4px;
+                    color: #0f172a;
+                    font-weight: 700;
+                    -webkit-box-decoration-break: clone;
+                    box-decoration-break: clone;
                 }
                 .markdown-content code {
                     background: #f1f5f9;
                     padding: 0.25rem 0.5rem;
                     border-radius: 4px;
                     font-size: 0.875rem;
-                    color: #6366f1;
+                    color: #0d9488;
                     font-family: 'Courier New', monospace;
                 }
                 .markdown-content pre {
@@ -837,18 +843,32 @@ const ResearchResult = ({ report, onClose, projectTitle }) => {
                 .markdown-content table tr:first-child td {
                     background: #e0e7ff;
                     font-weight: 600;
-                    color: #4f46e5;
+                    color: #0f766e;
                 }
                 .markdown-content td {
                     border: 1px solid #e2e8f0;
                     padding: 0.75rem;
                 }
                 .markdown-content blockquote {
-                    border-left: 4px solid #6366f1;
-                    background: #f8fafc;
-                    padding: 1rem 1.5rem;
-                    margin: 1rem 0;
+                    border-left: 4px solid #f59e0b;
+                    background: #fffbeb;
+                    padding: 1.5rem 2rem;
+                    margin: 2rem 0;
                     font-style: italic;
+                    font-size: 1.1em;
+                    border-radius: 0 8px 8px 0;
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+                    position: relative;
+                }
+                .markdown-content blockquote::before {
+                    content: '"';
+                    position: absolute;
+                    top: 0.5rem;
+                    left: 1rem;
+                    font-size: 3rem;
+                    color: rgba(245, 158, 11, 0.2);
+                    font-family: serif;
+                    line-height: 1;
                 }
                 
                 .report-footer {
@@ -863,7 +883,7 @@ const ResearchResult = ({ report, onClose, projectTitle }) => {
                     margin: 0.25rem 0;
                 }
                 .footer-tech {
-                    color: #6366f1;
+                    color: #0d9488;
                     font-weight: 500;
                 }
                 
@@ -891,8 +911,8 @@ const ResearchResult = ({ report, onClose, projectTitle }) => {
                     color: white;
                     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
                 }
-                .card-indigo {
-                    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+                .card-teal {
+                    background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
                 }
                 .card-green {
                     background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
@@ -963,7 +983,7 @@ const ResearchResult = ({ report, onClose, projectTitle }) => {
                     top: 0.5rem;
                     width: 0.5rem;
                     height: 0.5rem;
-                    background: #6366f1;
+                    background: #0d9488;
                     border-radius: 50%;
                 }
                 

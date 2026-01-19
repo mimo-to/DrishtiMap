@@ -33,7 +33,7 @@ const TransparencyPanel = ({
                         {source}
                     </span>
 
-                    {isLoading && <span className="text-xs text-blue-600 animate-pulse">(Processing...)</span>}
+                    {isLoading && <span className="text-xs text-teal-600 animate-pulse font-display">(Processing...)</span>}
                     {error && <span className="text-xs text-red-600">(Error)</span>}
                 </div>
                 <span className="text-xs text-gray-500">{isOpen ? 'Hide Details' : 'Show Details'}</span>
@@ -66,14 +66,14 @@ const TransparencyPanel = ({
                     {/* 2. Validation / Scores (Read-Only) */}
                     <div className="space-y-2">
                         <label className="block text-xs font-bold text-gray-500 uppercase">2. Evaluator Scores</label>
-                        <div className="bg-blue-50 p-3 rounded border border-blue-100">
+                        <div className="bg-stone-50 p-3 rounded-lg border border-stone-200">
                             {validationData ? (
                                 <div className="space-y-1">
                                     {/* Generic Key-Value dump for MVP */}
                                     {Object.entries(validationData).map(([key, value]) => (
-                                        <div key={key} className="flex justify-between border-b border-blue-100 last:border-0 py-1">
-                                            <span className="text-blue-800 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
-                                            <span className="font-mono text-blue-900">{String(value)}</span>
+                                        <div key={key} className="flex justify-between border-b border-stone-200 last:border-0 py-1">
+                                            <span className="text-stone-600 capitalize font-display">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
+                                            <span className="font-mono text-stone-900 text-xs">{String(value)}</span>
                                         </div>
                                     ))}
                                 </div>

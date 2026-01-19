@@ -1,4 +1,5 @@
 import React from 'react';
+import { Bot, Check, Sparkles, AlertCircle } from 'lucide-react';
 import Card from '../../components/ui/Card'; // Or just use div for sub-cards
 import Button from '../../components/ui/Button';
 
@@ -23,27 +24,27 @@ const SuggestionCard = ({ suggestion, isSelected, onToggle }) => {
             className={`
                 relative p-4 rounded-lg border transition-all cursor-pointer group flex flex-col h-full
                 ${isSelected
-                    ? 'bg-blue-50 border-blue-500 shadow-sm'
-                    : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-sm'}
+                    ? 'bg-teal-50 border-teal-500 shadow-sm'
+                    : 'bg-white border-stone-200 hover:border-teal-300 hover:shadow-sm'}
             `}
         >
             {/* Header: Title & Checkbox */}
             <div className="flex justify-between items-start mb-2">
                 <div className="pr-6">
                     {/* Primary Tag */}
-                    <span className="inline-block text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded mb-1.5 border border-indigo-100 tracking-wide">
+                    <span className="inline-block text-[10px] font-bold font-display text-teal-700 bg-teal-50 px-2 py-0.5 rounded mb-1.5 border border-teal-100 tracking-wide">
                         {tag.toUpperCase()}
                     </span>
-                    <h4 className={`text-sm font-bold leading-tight ${isSelected ? 'text-blue-800' : 'text-gray-800'}`}>
+                    <h4 className={`text-sm font-bold font-display leading-tight ${isSelected ? 'text-teal-900' : 'text-stone-800'}`}>
                         {suggestion.title}
                     </h4>
                 </div>
 
                 <div className={`
                     w-5 h-5 rounded-full border flex items-center justify-center flex-shrink-0 transition-colors
-                    ${isSelected ? 'bg-blue-600 border-blue-600' : 'border-gray-300 bg-white group-hover:border-blue-400'}
+                    ${isSelected ? 'bg-teal-600 border-teal-600' : 'border-stone-300 bg-white group-hover:border-teal-400'}
                 `}>
-                    {isSelected && <span className="text-white text-xs font-bold">✓</span>}
+                    {isSelected && <Check className="w-3 h-3 text-white" strokeWidth={4} />}
                 </div>
             </div>
 
@@ -67,7 +68,7 @@ const SuggestionCard = ({ suggestion, isSelected, onToggle }) => {
                     <p className="text-[10px] text-gray-400 uppercase font-bold mb-1">Affected Stakeholders</p>
                     <div className="flex flex-wrap gap-1">
                         {suggestion.stakeholders.map((s, idx) => (
-                            <span key={idx} className="text-[10px] text-blue-600 bg-blue-50/50 px-1.5 rounded">
+                            <span key={idx} className="text-[10px] text-teal-700 bg-teal-50 px-1.5 rounded border border-teal-100">
                                 {s}
                             </span>
                         ))}
@@ -95,8 +96,9 @@ const AISuggestionsPanel = ({
             <div className="flex justify-between items-end">
                 <div>
                     <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2">
-                        🤖 AI Co-Pilot Suggestions
-                        {isLoading && <span className="text-xs font-normal text-blue-600 animate-pulse">(Generating...)</span>}
+                        <Bot className="w-4 h-4 text-teal-600" />
+                        AI Co-Pilot Suggestions
+                        {isLoading && <span className="text-xs font-normal text-teal-600 animate-pulse font-display flex items-center gap-1"><Sparkles className="w-3 h-3" />(Generating...)</span>}
                     </h3>
                     <p className="text-xs text-gray-500 mt-1">
                         Select suggestions to add them to your project notes.
@@ -115,8 +117,9 @@ const AISuggestionsPanel = ({
 
             {/* Error State */}
             {error && (
-                <div className="bg-red-50 text-red-600 p-4 rounded text-sm border border-red-100">
-                    <strong>AI Error:</strong> {error}
+                <div className="bg-red-50 text-red-600 p-4 rounded text-sm border border-red-100 flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4" />
+                    <span><strong>AI Error:</strong> {error}</span>
                 </div>
             )}
 

@@ -5,7 +5,7 @@ import { useQuestStore } from '../quest/engine/useQuestStore';
 import QuestLevel from '../quest/ui/QuestLevel';
 import { LEVELS, getLevelById, getNextLevelId, getPrevLevelId } from '../quest/config/levels';
 
-import { useAutoSave } from '../hooks/useAutoSave';
+// import { useAutoSave } from '../hooks/useAutoSave';
 
 const QuestPage = () => {
     const { projectId, levelId } = useParams();
@@ -69,7 +69,7 @@ const QuestPage = () => {
     };
 
     const handleSave = async () => {
-        if (!userId) return;
+        if (!userId) return false;
         setSaveStatus('saving');
         const token = await getToken();
         // Simple title derivation for now
@@ -78,25 +78,28 @@ const QuestPage = () => {
         if (result.success) {
             setSaveStatus('saved');
             setTimeout(() => setSaveStatus(null), 2000);
+            return true;
         } else {
             console.error(result.error);
             setSaveStatus('error');
+            return false;
         }
     };
 
     // 3. Auto-Save Integration (Must be before Validation/Early Returns)
-    useAutoSave({
-        triggerSave: handleSave,
-        hasChanges: hasUnsavedChanges
-    });
+    // 3. Auto-Save Integration (DISABLED)
+    // useAutoSave({
+    //     triggerSave: handleSave,
+    //     hasChanges: hasUnsavedChanges
+    // });
 
     // 4. Validations & Redirects
 
     // If loading a new project, show spinner
     if (isLoading && projectId !== currentProjectId) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+            <div className="min-h-screen flex items-center justify-center bg-stone-50">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-700"></div>
             </div>
         );
     }
@@ -110,7 +113,7 @@ const QuestPage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-stone-50">
             <QuestLevel
                 levelConfig={levelConfig}
                 onNext={handleNext}
