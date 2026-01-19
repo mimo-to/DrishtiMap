@@ -408,9 +408,10 @@ graph LR
 
 ## 💡 Key Research Findings
 
-**⚠️ MANDATORY SECTION - DO NOT SKIP ⚠️**
+## 💡 Key Research Findings
 
-**CRITICAL - THIS SECTION IS MANDATORY**: You MUST extract and present REAL data from the analyst research above. Generate AT LEAST 5-8 findings. This section CANNOT be empty or generic.
+**Instruction**: Extract and present REAL data from the analyst research above. Generate AT LEAST 5-8 findings.
+
 
 1. **Government Schemes** - List ACTUAL scheme names with:
    - Official scheme name (e.g., "Samagra Shiksha Abhiyan")
