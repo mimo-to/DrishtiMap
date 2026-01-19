@@ -1,4 +1,4 @@
-import { HashRouter as BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 import MainLayout from './components/layout/MainLayout';
 import Home from './pages/Home';
