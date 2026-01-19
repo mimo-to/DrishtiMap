@@ -383,5 +383,20 @@ export const useQuestStore = create((set, get) => ({
         },
         hasUnsavedChanges: true
     }));
+  },
+
+  /**
+   * Pre-fill answers from document analysis
+   * Used when user uploads a document and AI extracts information
+   */
+  prefillFromDocument: (extractedData) => {
+    set((state) => ({
+      answers: {
+        ...state.answers,
+        ...extractedData
+      },
+      hasUnsavedChanges: true
+    }));
+    console.log('✨ Pre-filled answers from document:', extractedData);
   }
 }));

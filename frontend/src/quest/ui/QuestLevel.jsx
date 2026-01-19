@@ -58,7 +58,10 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
             if (error.message.includes('VS_QUOTA_EXCEEDED')) {
                 setGlobalError("🚨 Daily AI Research Limit Reached. Please try again tomorrow! (Free Tier Limit)");
             } else {
-                setGlobalError("Failed to generate research report. Please try again.");
+                // Show the actual error message for debugging
+                const errorMsg = error.message || "Unknown error occurred";
+                setGlobalError(`Failed to generate research report: ${errorMsg}`);
+                console.error("Full error details:", error);
             }
         } finally {
             setIsResearching(false);

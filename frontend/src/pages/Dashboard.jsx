@@ -51,7 +51,8 @@ const Dashboard = () => {
         const result = await saveProject(token, title);
 
         if (result && result.success) {
-            navigate(`/quest/${result.project._id}`);
+            // Navigate to upload page instead of directly to quest
+            navigate(`/quest/${result.project._id}/upload`);
         }
     };
 
