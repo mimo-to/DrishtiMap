@@ -45,15 +45,8 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API Routes Placeholder
 // API Routes
 app.use('/api', require('./routes/index'));
-
-// Dev-only Auth Test Routes
-// Dev-only Auth Test Routes
-if (process.env.NODE_ENV !== 'production') {
-  // Removed auth-test routes
-}
 
 // 6. Error Handling
 app.use(notFound);
