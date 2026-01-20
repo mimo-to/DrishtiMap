@@ -31,67 +31,113 @@ const ExportActions = ({ onSave, saveStatus, isSaving, onResearch, isResearching
     };
 
     return (
-        <div className="mt-8 pt-6 border-t border-gray-100">
+        <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-100">
             <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
                 Project Actions
             </h3>
-            <div className="flex flex-col sm:flex-row sm:justify-between gap-3 sm:gap-4 sm:items-center">
-                {/* Left side - Export buttons */}
-                <div className="flex flex-wrap gap-2">
+
+            {/* Mobile: Stack everything vertically */}
+            <div className="flex flex-col gap-2 sm:hidden">
+                {/* Export JSON */}
+                <Button
+                    variant="outline"
+                    onClick={() => handleExportClick('json')}
+                    className="text-xs py-1.5 h-8 w-full justify-center"
+                >
+                    <Download className="w-3.5 h-3.5 mr-1.5" />
+                    Export JSON
+                </Button>
+
+                {/* Review Deck (if exists) */}
+                {savedResearch && (
+                    <Button
+                        variant="outline"
+                        onClick={onViewResearch}
+                        className="text-xs py-1.5 h-8 w-full justify-center"
+                    >
+                        <FileText className="w-3.5 h-3.5 mr-1.5" />
+                        Review Deck
+                    </Button>
+                )}
+
+                {/* Research/Regenerate */}
+                <Button
+                    onClick={onResearch}
+                    disabled={isResearching || isSaving}
+                    className="text-xs py-1.5 h-8 bg-teal-700 text-white hover:bg-teal-800 w-full justify-center"
+                >
+                    {isResearching ? (
+                        <><RefreshCw className="w-3.5 h-3.5 mr-1.5 animate-spin" />Thinking...</>
+                    ) : savedResearch ? (
+                        <><RefreshCw className="w-3.5 h-3.5 mr-1.5" />Regenerate</>
+                    ) : (
+                        <><Sparkles className="w-3.5 h-3.5 mr-1.5" />Research</>
+                    )}
+                </Button>
+
+                {/* Save Progress */}
+                <Button
+                    variant={saveStatus === 'saved' ? 'secondary' : 'primary'}
+                    onClick={onSave}
+                    disabled={isSaving}
+                    className={`text-xs py-1.5 h-8 w-full justify-center ${saveStatus === 'saved' ? 'bg-green-50 text-green-700 border-green-200' : ''}`}
+                >
+                    {isSaving ? 'Saving...' : saveStatus === 'saved' ? '✓ Saved' : 'Save Progress'}
+                </Button>
+
+                {/* Status */}
+                {saveStatus === 'error' && <span className="text-red-600 text-xs text-center">Save failed</span>}
+            </div>
+
+            {/* Desktop: Horizontal layout */}
+            <div className="hidden sm:flex justify-between items-center">
+                <div className="flex gap-2">
                     <Button
                         variant="outline"
                         onClick={() => handleExportClick('json')}
-                        className="text-xs py-1.5 h-8 flex-shrink-0"
+                        className="text-xs py-1.5 h-8"
                     >
-                        <Download className="w-3.5 h-3.5 mr-1.5 inline-block" />
-                        <span className="hidden sm:inline">Export JSON</span>
-                        <span className="sm:hidden">JSON</span>
+                        <Download className="w-3.5 h-3.5 mr-1.5" />
+                        Export JSON
                     </Button>
-
                 </div>
 
-                {/* Right side - Save Progress & Research Actions */}
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
-                    {/* Status indicators */}
-                    {saveStatus === 'saved' && <span className="text-green-600 text-xs font-medium animate-fade-in flex items-center"><Check className="w-3 h-3 mr-1" />Saved!</span>}
-                    {saveStatus === 'error' && <span className="text-red-600 text-xs font-medium animate-fade-in">Failed</span>}
+                <div className="flex items-center gap-2">
+                    {saveStatus === 'saved' && <span className="text-green-600 text-xs font-medium flex items-center"><Check className="w-3 h-3 mr-1" />Saved!</span>}
+                    {saveStatus === 'error' && <span className="text-red-600 text-xs">Failed</span>}
 
-                    {/* Research Actions */}
-                    <div className="flex flex-col sm:flex-row items-stretch gap-2">
-                        {savedResearch && (
-                            <Button
-                                variant="outline"
-                                onClick={onViewResearch}
-                                className="text-xs py-1.5 h-8 w-full sm:w-auto"
-                            >
-                                <FileText className="w-3.5 h-3.5 mr-1.5 inline-block" />
-                                <span className="hidden sm:inline">Review Strategy Deck</span>
-                                <span className="sm:hidden">Review Deck</span>
-                            </Button>
-                        )}
-
+                    {savedResearch && (
                         <Button
-                            onClick={onResearch}
-                            disabled={isResearching || isSaving}
-                            className="text-xs py-1.5 h-8 bg-teal-700 text-white hover:bg-teal-800 border-teal-700 shadow-sm w-full sm:w-auto"
+                            variant="outline"
+                            onClick={onViewResearch}
+                            className="text-xs py-1.5 h-8"
                         >
-                            {isResearching ? (
-                                <span className="flex items-center justify-center"><RefreshCw className="w-3.5 h-3.5 mr-1.5 animate-spin" />Thinking...</span>
-                            ) : savedResearch ? (
-                                <span className="flex items-center justify-center"><RefreshCw className="w-3.5 h-3.5 mr-1.5" /><span className="hidden sm:inline">Regenerate Deck</span><span className="sm:hidden">Regenerate</span></span>
-                            ) : (
-                                <span className="flex items-center justify-center"><Sparkles className="w-3.5 h-3.5 mr-1.5" /><span className="hidden sm:inline">Finalize & Research</span><span className="sm:hidden">Research</span></span>
-                            )}
+                            <FileText className="w-3.5 h-3.5 mr-1.5" />
+                            Review Strategy Deck
                         </Button>
-                    </div>
+                    )}
+
+                    <Button
+                        onClick={onResearch}
+                        disabled={isResearching || isSaving}
+                        className="text-xs py-1.5 h-8 bg-teal-700 text-white hover:bg-teal-800"
+                    >
+                        {isResearching ? (
+                            <><RefreshCw className="w-3.5 h-3.5 mr-1.5 animate-spin" />Thinking...</>
+                        ) : savedResearch ? (
+                            <><RefreshCw className="w-3.5 h-3.5 mr-1.5" />Regenerate Deck</>
+                        ) : (
+                            <><Sparkles className="w-3.5 h-3.5 mr-1.5" />Finalize & Research</>
+                        )}
+                    </Button>
 
                     <Button
                         variant={saveStatus === 'saved' ? 'secondary' : 'primary'}
                         onClick={onSave}
                         disabled={isSaving}
-                        className={`text-xs py-1.5 h-8 w-full sm:w-auto ${saveStatus === 'saved' ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100' : ''}`}
+                        className={`text-xs py-1.5 h-8 ${saveStatus === 'saved' ? 'bg-green-50 text-green-700 border-green-200' : ''}`}
                     >
-                        {isSaving ? 'Saving...' : saveStatus === 'saved' ? 'Saved' : <><span className="hidden sm:inline">Save Progress</span><span className="sm:hidden">Save</span></>}
+                        {isSaving ? 'Saving...' : saveStatus === 'saved' ? 'Saved' : 'Save Progress'}
                     </Button>
                 </div>
             </div>
