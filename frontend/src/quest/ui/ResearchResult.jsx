@@ -530,23 +530,35 @@ const ResearchResult = ({ report, onClose, projectTitle }) => {
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    padding: 1rem;
+                    padding: 0;
                     background: rgba(0, 0, 0, 0.7);
                     backdrop-filter: blur(8px);
+                }
+                @media (min-width: 640px) {
+                    .modal-overlay {
+                        padding: 1rem;
+                    }
                 }
                 .modal-overlay.fullscreen {
                     padding: 0;
                 }
                 .modal-container {
                     background: white;
-                    border-radius: 12px;
+                    border-radius: 0;
                     box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
                     width: 100%;
-                    max-width: 1400px;
-                    max-height: 95vh;
+                    max-width: 100%;
+                    max-height: 100vh;
                     display: flex;
                     flex-direction: column;
                     overflow: hidden;
+                }
+                @media (min-width: 640px) {
+                    .modal-container {
+                        border-radius: 12px;
+                        max-width: 1400px;
+                        max-height: 95vh;
+                    }
                 }
                 .fullscreen .modal-container {
                     max-width: 100%;

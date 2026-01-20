@@ -107,11 +107,12 @@ const Dashboard = () => {
             <BackgroundPattern variant="dots" />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
                 {/* Header */}
-                <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-4xl font-display font-bold text-stone-900">Your Projects</h1>
-                    <Button variant="teal" onClick={handleStartNewProject}>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                    <h1 className="text-3xl sm:text-4xl font-display font-bold text-stone-900">Your Projects</h1>
+                    <Button variant="teal" onClick={handleStartNewProject} className="w-full sm:w-auto">
                         <Plus className="w-4 h-4 mr-2" />
-                        Start New Project
+                        <span className="hidden sm:inline">Start New Project</span>
+                        <span className="sm:hidden">New Project</span>
                     </Button>
                 </div>
 

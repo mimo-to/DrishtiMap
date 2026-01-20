@@ -48,10 +48,10 @@ const Home = () => {
                 <div className="container mx-auto px-6">
                     <div className="grid md:grid-cols-2 gap-12 items-center">
                         <div className="animate-fade-in-up">
-                            <h1 className="font-display text-5xl md:text-6xl font-bold text-stone-900 mb-6">
+                            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold text-stone-900 mb-6">
                                 Transform Your <span className="text-teal-700">Impact</span>
                             </h1>
-                            <p className="font-body text-xl text-stone-600 mb-8">
+                            <p className="font-body text-lg sm:text-xl text-stone-600 mb-8">
                                 AI-Powered Logical Framework Analysis Builder for NGOs and Social Impact Projects.
                                 Make data-driven decisions with confidence.
                             </p>
@@ -80,10 +80,10 @@ const Home = () => {
             {/* Features Section */}
             <section className="py-20 bg-stone-50">
                 <div className="container mx-auto px-6">
-                    <h2 className="font-display text-4xl font-bold text-stone-900 mb-4 text-center">
+                    <h2 className="font-display text-3xl sm:text-4xl font-bold text-stone-900 mb-4 text-center">
                         Why Choose DrishtiMap
                     </h2>
-                    <p className="font-body text-xl text-stone-600 text-center mb-12 max-w-2xl mx-auto">
+                    <p className="font-body text-base sm:text-xl text-stone-600 text-center mb-12 max-w-2xl mx-auto">
                         Powerful features designed for impact-driven organizations
                     </p>
 

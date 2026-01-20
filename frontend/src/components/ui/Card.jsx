@@ -1,7 +1,7 @@
 export const Card = ({ children, hover = true, className = '' }) => {
     return (
         <div className={`
-      bg-white rounded-xl p-6
+      bg-white rounded-xl p-4 sm:p-6
       border border-stone-200
       shadow-sm
       transition-all duration-300 ease-[var(--ease-smooth)]
