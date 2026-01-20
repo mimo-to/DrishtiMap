@@ -575,7 +575,12 @@ const ResearchResult = ({ report, onClose, projectTitle }) => {
                     display: flex;
                     align-items: center;
                     justify-content: space-between;
-                    padding: 1rem 1.5rem;
+                    padding: 0.75rem 1rem;
+                }
+                @media (min-width: 640px) {
+                    .header-top {
+                        padding: 1rem 1.5rem;
+                    }
                 }
                 .header-left {
                     display: flex;
@@ -621,11 +626,19 @@ const ResearchResult = ({ report, onClose, projectTitle }) => {
                 .stats-bar {
                     background: rgba(255, 255, 255, 0.1);
                     backdrop-filter: blur(10px);
-                    padding: 0.75rem 1.5rem;
+                    padding: 0.5rem 1rem;
                     display: flex;
                     align-items: center;
                     justify-content: space-between;
                     border-top: 1px solid rgba(255, 255, 255, 0.2);
+                    flex-wrap: wrap;
+                    gap: 0.5rem;
+                }
+                @media (min-width: 640px) {
+                    .stats-bar {
+                        padding: 0.75rem 1.5rem;
+                        flex-wrap: nowrap;
+                    }
                 }
                 .stats-left {
                     display: flex;
@@ -724,14 +737,24 @@ const ResearchResult = ({ report, onClose, projectTitle }) => {
                 .report-wrapper {
                     display: flex;
                     justify-content: center;
-                    padding: 2rem;
+                    padding: 0.5rem;
+                }
+                @media (min-width: 640px) {
+                    .report-wrapper {
+                        padding: 2rem;
+                    }
                 }
                 .report-paper {
                     background: white;
                     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
                     width: 100%;
                     max-width: 900px;
-                    padding: 3rem;
+                    padding: 1rem;
+                }
+                @media (min-width: 640px) {
+                    .report-paper {
+                        padding: 3rem;
+                    }
                 }
                 
                 .report-cover {
