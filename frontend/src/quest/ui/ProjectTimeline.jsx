@@ -13,8 +13,8 @@ const ProjectTimeline = ({ currentLevelId, onJumpToLevel }) => {
     };
 
     return (
-        <div className="h-full bg-white rounded-lg shadow-sm border border-gray-200 p-4 overflow-y-auto sticky top-4 max-h-[calc(100vh-2rem)]">
-            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
+        <div className="h-full bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-4 overflow-y-auto lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)]">
+            <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4 flex items-center">
                 Project Journey
             </h3>
 

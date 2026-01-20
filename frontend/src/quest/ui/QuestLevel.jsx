@@ -165,25 +165,33 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
     };
 
     return (
-        <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
             {/* Project Name Header */}
             {currentProject && (
                 <div className="mb-4 pb-3 border-b border-gray-200">
                     <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-gray-500">Project:</span>
-                        <h1 className="text-lg font-bold font-display text-teal-700">
+                        <span className="text-xs sm:text-sm font-medium text-gray-500">Project:</span>
+                        <h1 className="text-base sm:text-lg font-bold font-display text-teal-700 truncate">
                             {currentProject.title || 'Untitled Project'}
                         </h1>
                     </div>
                 </div>
             )}
 
-            <div className="flex flex-col lg:flex-row gap-8">
+            {/* Mobile Timeline - Show at top on mobile */}
+            <div className="lg:hidden mb-6">
+                <ProjectTimeline
+                    currentLevelId={levelConfig.id}
+                    onJumpToLevel={handleJumpToLevel}
+                />
+            </div>
+
+            <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
                 {/* Main Content Area */}
                 <div className="flex-1 min-w-0">
-                    <div className="mb-6">
-                        <h2 className="text-2xl font-bold text-gray-900">{levelConfig.title}</h2>
-                        <p className="text-gray-600 mt-1">{levelConfig.description}</p>
+                    <div className="mb-4 sm:mb-6">
+                        <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{levelConfig.title}</h2>
+                        <p className="text-sm sm:text-base text-gray-600 mt-1">{levelConfig.description}</p>
                     </div>
 
                     <Card>
@@ -228,7 +236,7 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
                     </Card>
                 </div>
 
-                {/* Right Sidebar - Timeline */}
+                {/* Right Sidebar - Timeline (Desktop only, mobile shows at top) */}
                 <div className="hidden lg:block w-80 flex-shrink-0">
                     <ProjectTimeline
                         currentLevelId={levelConfig.id}
