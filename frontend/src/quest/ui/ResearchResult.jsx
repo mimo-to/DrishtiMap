@@ -1,253 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { X, Download, FileText, Printer, Share2, Maximize2, Minimize2, ChevronRight, Zap, TrendingUp, CheckCircle, Clock, AlertCircle } from 'lucide-react';
-import mermaid from 'mermaid'; // Static import for stability
-
-/**
- * PRODUCTION-READY Mermaid Renderer
- * Handles errors gracefully, shows loading states
- */
-const MermaidDiagram = ({ chart, index }) => {
-    const [status, setStatus] = useState('loading');
-    const [svg, setSvg] = useState('');
-    const containerRef = useRef(null);
-    // Sanitize ID to ensure valid selector (remove dashes/spaces if needed, but simple is better)
-    const uniqueId = useRef(`mermaid-${index}`).current;
-
-    useEffect(() => {
-        let mounted = true;
-
-        const renderDiagram = async () => {
-            try {
-                // Initialize mermaid once
-                mermaid.initialize({
-                    startOnLoad: false,
-                    theme: 'default',
-                    securityLevel: 'loose',
-                    fontFamily: 'Inter, sans-serif',
-                    themeVariables: {
-                        primaryColor: '#0d9488',
-                        primaryTextColor: '#1e293b',
-                        primaryBorderColor: '#0f766e',
-                        lineColor: '#94a3b8',
-                        secondaryColor: '#e0e7ff',
-                        tertiaryColor: '#f1f5f9'
-                    },
-                    suppressErrorRendering: true // We handle errors ourselves
-                });
-
-                // Validate chart content
-                if (!chart || chart.trim().length === 0) {
-                    throw new Error("Empty chart content");
-                }
-
-                // Render
-                // Note: v10+ render returns { svg }
-                const { svg: renderedSvg } = await mermaid.render(uniqueId, chart);
-
-                if (mounted) {
-                    setSvg(renderedSvg);
-                    setStatus('success');
-                }
-            } catch (error) {
-                console.error('Mermaid render error:', error);
-                if (mounted) {
-                    setStatus('fallback');
-                    generateFallback();
-                }
-            }
-        };
-
-        const generateFallback = () => {
-            const type = chart.includes('mindmap') ? '🧠 Mindmap' :
-                chart.includes('gantt') ? '📅 Gantt Chart' :
-                    chart.includes('pie') ? '📊 Pie Chart' :
-                        chart.includes('journey') ? '🚶 User Journey' :
-                            chart.includes('quadrantChart') ? '◼️ Quadrant Matrix' :
-                                chart.includes('sankey') ? '🌊 Flow Diagram' :
-                                    chart.includes('stateDiagram') ? '🔄 State Machine' :
-                                        chart.includes('graph') ? '📈 Flow Chart' : '📊 Diagram';
-
-            const lines = chart.split('\n').filter(l => l.trim() && !l.includes('```')).slice(0, 5);
-
-            setSvg(`
-                <div class="diagram-fallback">
-                    <div class="diagram-type">${type}</div>
-                    <div class="diagram-preview">${lines.map(l => `<div>${l.trim()}</div>`).join('')}</div>
-                    <div class="diagram-note">Visual diagram renders with Mermaid.js</div>
-                </div>
-            `);
-        };
-
-        // Small delay to ensure DOM is ready
-        setTimeout(renderDiagram, 100);
-
-        return () => { mounted = false; };
-    }, [chart, uniqueId]);
-
-    return (
-        <div className="mermaid-container" ref={containerRef}>
-            {status === 'loading' && (
-                <div className="diagram-loading">
-                    <div className="spinner"></div>
-                    <span>Rendering diagram...</span>
-                </div>
-            )}
-            {(status === 'success' || status === 'fallback') && (
-                <div
-                    className="diagram-render"
-                    dangerouslySetInnerHTML={{ __html: svg }}
-                />
-            )}
-            <style>{`
-                .mermaid-container {
-                    width: 100%;
-                    margin: 2rem 0;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    min-height: 200px;
-                }
-                .diagram-loading {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    gap: 1rem;
-                    color: #0d9488;
-                }
-                .spinner {
-                    width: 40px;
-                    height: 40px;
-                    border: 4px solid #e0e7ff;
-                    border-top-color: #0d9488;
-                    border-radius: 50%;
-                    animation: spin 1s linear infinite;
-                }
-                @keyframes spin {
-                    to { transform: rotate(360deg); }
-                }
-                .diagram-fallback {
-                    background: linear-gradient(135deg, #f0f4ff 0%, #e8eeff 100%);
-                    border: 2px dashed #0d9488;
-                    border-radius: 12px;
-                    padding: 2rem;
-                    text-align: center;
-                    max-width: 600px;
-                }
-                .diagram-type {
-                    font-size: 1.5rem;
-                    font-weight: 700;
-                    color: #0f766e;
-                    margin-bottom: 1rem;
-                }
-                .diagram-preview {
-                    background: white;
-                    border-radius: 8px;
-                    padding: 1rem;
-                    margin: 1rem 0;
-                    font-family: 'Courier New', monospace;
-                    font-size: 0.75rem;
-                    color: #475569;
-                    text-align: left;
-                    max-height: 150px;
-                    overflow: hidden;
-                }
-                .diagram-preview div {
-                    padding: 0.25rem 0;
-                }
-                .diagram-note {
-                    font-size: 0.875rem;
-                    color: #64748b;
-                    margin-top: 1rem;
-                }
-                .diagram-render {
-                    width: 100%;
-                    display: flex;
-                    justify-content: center;
-                }
-            `}</style>
-        </div>
-    );
-};
-
-/**
- * Simple Markdown Parser (No external dependencies)
- */
-const SimpleMarkdown = ({ content, diagramIndex }) => {
-    const [html, setHtml] = useState('');
-    const diagrams = useRef([]);
-
-    useEffect(() => {
-        let parsedContent = content;
-        diagrams.current = [];
-
-        // Extract mermaid blocks
-        parsedContent = parsedContent.replace(/```mermaid\n([\s\S]*?)```/g, (match, code) => {
-            const index = diagrams.current.length;
-            diagrams.current.push(code.trim());
-            return `<MERMAID_PLACEHOLDER_${index}>`;
-        });
-
-        // Basic markdown parsing
-        parsedContent = parsedContent
-            // Headers
-            .replace(/^### (.*$)/gm, '<h3>$1</h3>')
-            .replace(/^## (.*$)/gm, '<h2><span class="header-icon">▸</span>$1</h2>')
-            .replace(/^# (.*$)/gm, '<h1>$1</h1>')
-            // Bold and italic
-            .replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')
-            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-            .replace(/\*(.+?)\*/g, '<em>$1</em>')
-            // Code blocks (non-mermaid)
-            .replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
-            // Inline code
-            .replace(/`([^`]+)`/g, '<code>$1</code>')
-            // Lists
-            .replace(/^\* (.+)$/gm, '<li>$1</li>')
-            .replace(/^- (.+)$/gm, '<li>$1</li>')
-            .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
-            // Wrap consecutive <li> in <ul>
-            .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
-            // Links
-            .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>')
-            // Blockquotes
-            .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
-            // Horizontal rules
-            .replace(/^---$/gm, '<hr>')
-            // Tables
-            .replace(/\|(.+)\|/g, (match) => {
-                const cells = match.split('|').filter(c => c.trim());
-                return '<tr>' + cells.map(c => `<td>${c.trim()}</td>`).join('') + '</tr>';
-            })
-            .replace(/(<tr>.*<\/tr>\n?)+/g, '<table>$&</table>')
-            // Paragraphs
-            .replace(/^(?!<[hul]|<\/|<table|<pre|<blockquote)(.+)$/gm, '<p>$1</p>')
-            // Clean up extra newlines
-            .replace(/\n{3,}/g, '\n\n');
-
-        setHtml(parsedContent);
-    }, [content]);
-
-    return (
-        <div className="markdown-content">
-            {html.split(/<MERMAID_PLACEHOLDER_(\d+)>/).map((segment, i) => {
-                if (i % 2 === 0) {
-                    // Text content
-                    return <div key={i} dangerouslySetInnerHTML={{ __html: segment }} />;
-                } else {
-                    // Mermaid diagram
-                    const diagramIdx = parseInt(segment);
-                    return diagrams.current[diagramIdx] ? (
-                        <MermaidDiagram
-                            key={`diagram-${i}`}
-                            chart={diagrams.current[diagramIdx]}
-                            index={diagramIdx}
-                        />
-                    ) : null;
-                }
-            })}
-        </div>
-    );
-};
+import SimpleMarkdown from './research/SimpleMarkdown';
+import { sampleReport } from './research/sampleReport';
+import './research/ResearchResult.css';
 
 const ResearchResult = ({ report, onClose, projectTitle }) => {
     const [viewMode, setViewMode] = useState('preview');
@@ -255,10 +10,10 @@ const ResearchResult = ({ report, onClose, projectTitle }) => {
     const [downloadProgress, setDownloadProgress] = useState(0);
     const [showStats, setShowStats] = useState(true);
 
-    // Fallback report if none provided
+
     const displayReport = report || sampleReport;
 
-    // Calculate stats
+
     const stats = {
         diagrams: (displayReport.match(/```mermaid/g) || []).length,
         sections: (displayReport.match(/^## /gm) || []).length,
@@ -266,7 +21,7 @@ const ResearchResult = ({ report, onClose, projectTitle }) => {
         readTime: Math.ceil(displayReport.split(/\s+/).length / 200)
     };
 
-    // New Weighted Depth Score Algorithm
+
     const calculateDepth = () => {
         const wordScore = Math.min(60, (stats.words / 1000) * 60);
         const diagramScore = Math.min(30, (stats.diagrams / 5) * 30);
@@ -280,23 +35,23 @@ const ResearchResult = ({ report, onClose, projectTitle }) => {
         setDownloadProgress(20);
 
         try {
-            // Ensure we're on the report tab
+
             if (activeTab !== 'report') {
                 setActiveTab('report');
-                // Wait for tab to switch and render
+
                 await new Promise(resolve => setTimeout(resolve, 500));
             }
 
             const element = document.getElementById('report-content');
 
-            // Validate element exists
+
             if (!element) {
                 throw new Error('Report content not found. Please ensure the report is fully loaded.');
             }
 
             setDownloadProgress(40);
 
-            // Generate filename from project title
+
             const sanitizeFilename = (title) => {
                 if (!title || title === 'Untitled Project') {
                     return 'Strategic_Project_Report';
@@ -328,7 +83,7 @@ const ResearchResult = ({ report, onClose, projectTitle }) => {
                 }
             };
 
-            // Dynamically import html2pdf
+
             const html2pdf = (await import('html2pdf.js')).default;
 
             setDownloadProgress(60);
@@ -365,7 +120,7 @@ const ResearchResult = ({ report, onClose, projectTitle }) => {
         <div className={`modal-overlay ${viewMode === 'fullscreen' ? 'fullscreen' : ''}`}>
             <div className={`modal-container animate-fade-in`}>
 
-                {/* Header */}
+
                 <div className="modal-header">
                     <div className="header-top">
                         <div className="header-left">
@@ -397,7 +152,7 @@ const ResearchResult = ({ report, onClose, projectTitle }) => {
                         </div>
                     </div>
 
-                    {/* Stats Bar */}
+
                     {showStats && (
                         <div className="stats-bar">
                             <div className="stats-left">
@@ -436,7 +191,7 @@ const ResearchResult = ({ report, onClose, projectTitle }) => {
                         </div>
                     )}
 
-                    {/* Tabs */}
+
                     <div className="tab-nav">
                         {[
                             { id: 'report', label: 'Full Report', icon: FileText },
@@ -454,12 +209,12 @@ const ResearchResult = ({ report, onClose, projectTitle }) => {
                     </div>
                 </div>
 
-                {/* Content */}
+
                 <div className="modal-body">
                     {activeTab === 'report' && (
                         <div className="report-wrapper">
                             <div className="report-paper" id="report-content">
-                                {/* Cover */}
+
                                 <div className="report-cover page-break-after-avoid">
                                     <div className="cover-icon">
                                         <FileText size={48} />
@@ -479,10 +234,10 @@ const ResearchResult = ({ report, onClose, projectTitle }) => {
                                     </div>
                                 </div>
 
-                                {/* Content */}
+
                                 <SimpleMarkdown content={displayReport} />
 
-                                {/* Footer */}
+
                                 <div className="report-footer">
                                     <p>Confidential & Proprietary</p>
                                     <p>Generated via DrishtiMap Strategic Intelligence Platform</p>
@@ -494,25 +249,64 @@ const ResearchResult = ({ report, onClose, projectTitle }) => {
 
                     {activeTab === 'insights' && (
                         <div className="insights-wrapper animate-fade-in-up">
-                            <h2>💡 Key Research Findings</h2>
+                            <h2>Key Research Findings</h2>
                             <p style={{ color: '#64748b', marginBottom: '2rem' }}>
                                 Critical insights from AI research analysis including government schemes, market opportunities, and strategic recommendations.
                             </p>
-
                             <div className="research-findings">
                                 <SimpleMarkdown content={
-                                    // Extract Key Research Findings section from the report
+
                                     (() => {
-                                        const match = displayReport.match(/##\s*💡\s*Key Research Findings([\s\S]*?)(?=##|$)/i);
-                                        if (match && match[1]) {
-                                            return match[1].trim();
+                                        // Strategy 1: Look for specific standard headers
+                                        const specificHeaders = [
+                                            'Key Research Findings', 'Key Insights', 'Research Findings',
+                                            'Strategic Insights', 'Executive Summary', 'Summary',
+                                            'Project Overview', 'Strategic Analysis', 'Program Design',
+                                            'Conclusion', 'Recommendations', 'Analysis'
+                                        ];
+
+                                        for (const header of specificHeaders) {
+                                            // Improved Regex:
+                                            // 1. (?:^|\n)#{1,6}\s* -> Matches start of line or file, 1-6 hashes, and whitespace
+                                            // 2. (?:[^\n]{0,50}) -> Matches up to 50 chars of "noise" (emojis, icons, formatting) before the key text
+                                            // 3. ${header} -> The specific header text we want
+                                            // 4. [^\n]*\n -> Matches the rest of the header line and the newline
+                                            // 5. ([\s\S]*?) -> Captures the content (non-greedy)
+                                            // 6. (?=(?:\n#{1,6}\s)|$) -> lookahead for next header or end of string
+                                            const regex = new RegExp(`(?:^|\\n)#{1,6}\\s*(?:[^\\n]{0,50})${header}[^\\n]*\\n([\\s\\S]*?)(?=(?:\\n#{1,6}\\s)|$)`, 'i');
+
+                                            const match = displayReport.match(regex);
+                                            if (match && match[1] && match[1].trim()) {
+                                                const content = match[1].trim();
+                                                if (['Executive Summary', 'Summary', 'Project Overview'].includes(header)) {
+                                                    return `**Note**: Showing ${header} as specific findings were not explicitly identified.\n\n${content}`;
+                                                }
+                                                return content;
+                                            }
                                         }
-                                        // Fallback: Show Executive Summary if Key Research Findings not found
-                                        const summaryMatch = displayReport.match(/##\s*🎯\s*Executive Summary([\s\S]*?)(?=##|$)/i);
-                                        if (summaryMatch && summaryMatch[1]) {
-                                            return "**Note**: Key Research Findings section not found. Showing Executive Summary instead.\n\n" + summaryMatch[1].trim();
+
+                                        // Strategy 2: Look for ANY header containing relevant keywords
+                                        const keywordRegex = /(?:^|\n)#{1,6}\s*.*(?:Finding|Insight|Analysis|Summary|Overview|Conclusion).*(\n[\s\S]*?)(?=(?:\n#{1,6}\s)|$)/i;
+                                        const keywordMatch = displayReport.match(keywordRegex);
+                                        if (keywordMatch && keywordMatch[1] && keywordMatch[1].trim()) {
+                                            return `**Note**: Extracted from relevant section.\n\n${keywordMatch[1].trim()}`;
                                         }
-                                        return "**No research findings available.** Please regenerate the research report to see detailed insights.";
+
+                                        // Strategy 3: Just grab the first substantial section (that isn't the main title)
+                                        // Matches the first header that has content following it
+                                        const genericSectionRegex = /(?:^|\n)#{1,6}\s*([^#\n]+)(\n[\s\S]*?)(?=(?:\n#{1,6}\s)|$)/;
+                                        const genericMatch = displayReport.match(genericSectionRegex);
+                                        if (genericMatch && genericMatch[2] && genericMatch[2].trim()) {
+                                            return `**Note**: Showing section "${genericMatch[1].trim()}" as no specific insights section was found.\n\n${genericMatch[2].trim()}`;
+                                        }
+
+                                        // Strategy 4: Fallback to showing the beginning of the report
+                                        const firstChars = displayReport.slice(0, 1000);
+                                        if (firstChars.trim()) {
+                                            return `**Note**: Could not identify sections. Showing report preview.\n\n${firstChars}...`;
+                                        }
+
+                                        return "**No content available.** Please regenerate the research report.";
                                     })()
                                 } />
                             </div>
@@ -521,608 +315,8 @@ const ResearchResult = ({ report, onClose, projectTitle }) => {
                 </div>
 
             </div>
-
-            <style>{`
-                .modal-overlay {
-                    position: fixed;
-                    inset: 0;
-                    z-index: 9999;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    padding: 0;
-                    background: rgba(0, 0, 0, 0.7);
-                    backdrop-filter: blur(8px);
-                }
-                @media (min-width: 640px) {
-                    .modal-overlay {
-                        padding: 1rem;
-                    }
-                }
-                .modal-overlay.fullscreen {
-                    padding: 0;
-                }
-                .modal-container {
-                    background: white;
-                    border-radius: 0;
-                    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
-                    width: 100%;
-                    max-width: 100%;
-                    max-height: 100vh;
-                    display: flex;
-                    flex-direction: column;
-                    overflow: hidden;
-                }
-                @media (min-width: 640px) {
-                    .modal-container {
-                        border-radius: 12px;
-                        max-width: 1400px;
-                        max-height: 95vh;
-                    }
-                }
-                .fullscreen .modal-container {
-                    max-width: 100%;
-                    max-height: 100vh;
-                    border-radius: 0;
-                }
-                
-                /* Header */
-                .modal-header {
-                    background: linear-gradient(135deg, #0d9488 0%, #2dd4bf 100%);
-                    color: white;
-                }
-                .header-top {
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    padding: 0.75rem 1rem;
-                }
-                @media (min-width: 640px) {
-                    .header-top {
-                        padding: 1rem 1.5rem;
-                    }
-                }
-                .header-left {
-                    display: flex;
-                    align-items: center;
-                    gap: 1rem;
-                }
-                .header-icon {
-                    padding: 0.625rem;
-                    background: rgba(255, 255, 255, 0.2);
-                    border-radius: 10px;
-                }
-                .header-left h3 {
-                    font-size: 1.25rem;
-                    font-weight: 700;
-                    margin: 0;
-                }
-                .header-left p {
-                    font-size: 0.75rem;
-                    opacity: 0.9;
-                    margin: 0.25rem 0 0 0;
-                }
-                .header-actions {
-                    display: flex;
-                    gap: 0.5rem;
-                }
-                .header-actions button {
-                    padding: 0.625rem;
-                    background: transparent;
-                    border: none;
-                    color: white;
-                    cursor: pointer;
-                    border-radius: 8px;
-                    transition: background 0.2s;
-                }
-                .header-actions button:hover {
-                    background: rgba(255, 255, 255, 0.2);
-                }
-                .close-btn {
-                    margin-left: 0.5rem;
-                }
-                
-                /* Stats Bar */
-                .stats-bar {
-                    background: rgba(255, 255, 255, 0.1);
-                    backdrop-filter: blur(10px);
-                    padding: 0.5rem 1rem;
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    border-top: 1px solid rgba(255, 255, 255, 0.2);
-                    flex-wrap: wrap;
-                    gap: 0.5rem;
-                }
-                @media (min-width: 640px) {
-                    .stats-bar {
-                        padding: 0.75rem 1.5rem;
-                        flex-wrap: nowrap;
-                    }
-                }
-                .stats-left {
-                    display: flex;
-                    align-items: center;
-                    gap: 1rem;
-                    font-size: 0.875rem;
-                }
-                .stat-item {
-                    display: flex;
-                    align-items: center;
-                    gap: 0.5rem;
-                }
-                .stat-divider {
-                    width: 1px;
-                    height: 1rem;
-                    background: rgba(255, 255, 255, 0.3);
-                }
-                .download-btn {
-                    position: relative;
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 0.5rem;
-                    padding: 0.5rem 1.25rem;
-                    background: white;
-                    color: #0d9488;
-                    border: none;
-                    border-radius: 8px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    overflow: hidden;
-                    transition: transform 0.2s;
-                }
-                .download-btn:hover {
-                    transform: translateY(-2px);
-                }
-                .download-btn:disabled {
-                    cursor: not-allowed;
-                }
-                .progress-fill {
-                    position: absolute;
-                    left: 0;
-                    top: 0;
-                    height: 100%;
-                    background: #e0e7ff;
-                    transition: width 0.3s;
-                    z-index: 0;
-                }
-                .btn-text {
-                    position: relative;
-                    z-index: 1;
-                }
-                .download-btn span {
-                    position: relative;
-                    z-index: 1;
-                }
-                
-                /* Tabs */
-                .tab-nav {
-                    background: rgba(255, 255, 255, 0.1);
-                    padding: 0 1.5rem;
-                    display: flex;
-                    gap: 0.25rem;
-                    border-top: 1px solid rgba(255, 255, 255, 0.2);
-                }
-                .tab-nav button {
-                    display: flex;
-                    align-items: center;
-                    gap: 0.5rem;
-                    padding: 0.75rem 1rem;
-                    background: transparent;
-                    border: none;
-                    color: rgba(255, 255, 255, 0.8);
-                    cursor: pointer;
-                    font-size: 0.875rem;
-                    font-weight: 500;
-                    border-radius: 8px 8px 0 0;
-                    transition: all 0.2s;
-                }
-                .tab-nav button:hover {
-                    color: white;
-                    background: rgba(255, 255, 255, 0.1);
-                }
-                .tab-nav button.active {
-                    background: white;
-                    color: #0d9488;
-                }
-                
-                /* Body */
-                .modal-body {
-                    flex: 1;
-                    overflow-y: auto;
-                    background: #f8fafc;
-                }
-                
-                /* Report View */
-                .report-wrapper {
-                    display: flex;
-                    justify-content: center;
-                    padding: 0.5rem;
-                }
-                @media (min-width: 640px) {
-                    .report-wrapper {
-                        padding: 2rem;
-                    }
-                }
-                .report-paper {
-                    background: white;
-                    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-                    width: 100%;
-                    max-width: 900px;
-                    padding: 1rem;
-                }
-                @media (min-width: 640px) {
-                    .report-paper {
-                        padding: 3rem;
-                    }
-                }
-                
-                .report-cover {
-                    text-align: center;
-                    padding-bottom: 2rem;
-                    border-bottom: 4px solid #0d9488;
-                    margin-bottom: 3rem;
-                }
-                .cover-icon {
-                    display: inline-block;
-                    padding: 1rem;
-                    background: #e0e7ff;
-                    border-radius: 50%;
-                    margin-bottom: 1rem;
-                    color: #0d9488;
-                }
-                .report-cover h1 {
-                    font-size: 2.5rem;
-                    font-weight: 800;
-                    color: #1e293b;
-                    margin: 1rem 0;
-                }
-                .cover-subtitle {
-                    font-size: 1.125rem;
-                    color: #64748b;
-                    font-weight: 500;
-                    margin-bottom: 1.5rem;
-                }
-                .cover-meta {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 1rem;
-                    font-size: 0.875rem;
-                    color: #64748b;
-                }
-                .meta-item {
-                    display: flex;
-                    align-items: center;
-                    gap: 0.5rem;
-                }
-                .meta-item svg {
-                    color: #10b981;
-                }
-                .meta-divider {
-                    width: 1px;
-                    height: 1rem;
-                    background: #cbd5e1;
-                }
-                
-                /* Markdown Styles */
-                .markdown-content {
-                    color: #334155;
-                    line-height: 1.75;
-                }
-                .markdown-content h1 {
-                    font-size: 2rem;
-                    font-weight: 700;
-                    color: #1e293b;
-                    margin: 2rem 0 1rem 0;
-                    border-bottom: 2px solid #e2e8f0;
-                    padding-bottom: 0.5rem;
-                }
-                .markdown-content h2 {
-                    font-size: 1.5rem;
-                    font-weight: 600;
-                    color: #1e293b;
-                    margin: 2.5rem 0 1rem 0;
-                    border-bottom: 1px solid #e2e8f0;
-                    padding-bottom: 0.5rem;
-                    display: flex;
-                    align-items: center;
-                    gap: 0.5rem;
-                }
-                .header-icon {
-                    color: #0d9488;
-                }
-                .markdown-content h3 {
-                    font-size: 1.25rem;
-                    font-weight: 600;
-                    color: #475569;
-                    margin: 2rem 0 0.75rem 0;
-                }
-                .markdown-content p {
-                    margin: 1rem 0;
-                }
-                .markdown-content ul {
-                    margin: 1rem 0;
-                    padding-left: 1.5rem;
-                }
-                .markdown-content li {
-                    margin: 0.5rem 0;
-                }
-                .markdown-content strong {
-                    background: linear-gradient(120deg, rgba(255, 226, 8, 0.4) 0%, rgba(255, 226, 8, 0.1) 100%);
-                    box-shadow: inset 0 -0.5em 0 rgba(255, 226, 8, 0.2);
-                    padding: 0 0.25rem;
-                    border-radius: 4px;
-                    color: #0f172a;
-                    font-weight: 700;
-                    -webkit-box-decoration-break: clone;
-                    box-decoration-break: clone;
-                }
-                .markdown-content code {
-                    background: #f1f5f9;
-                    padding: 0.25rem 0.5rem;
-                    border-radius: 4px;
-                    font-size: 0.875rem;
-                    color: #0d9488;
-                    font-family: 'Courier New', monospace;
-                }
-                .markdown-content pre {
-                    background: #1e293b;
-                    color: #e2e8f0;
-                    padding: 1rem;
-                    border-radius: 8px;
-                    overflow-x: auto;
-                    margin: 1rem 0;
-                }
-                .markdown-content table {
-                    width: 100%;
-                    border-collapse: collapse;
-                    margin: 1.5rem 0;
-                }
-                .markdown-content table tr:first-child td {
-                    background: #e0e7ff;
-                    font-weight: 600;
-                    color: #0f766e;
-                }
-                .markdown-content td {
-                    border: 1px solid #e2e8f0;
-                    padding: 0.75rem;
-                }
-                .markdown-content blockquote {
-                    border-left: 4px solid #f59e0b;
-                    background: #fffbeb;
-                    padding: 1.5rem 2rem;
-                    margin: 2rem 0;
-                    font-style: italic;
-                    font-size: 1.1em;
-                    border-radius: 0 8px 8px 0;
-                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-                    position: relative;
-                }
-                .markdown-content blockquote::before {
-                    content: '"';
-                    position: absolute;
-                    top: 0.5rem;
-                    left: 1rem;
-                    font-size: 3rem;
-                    color: rgba(245, 158, 11, 0.2);
-                    font-family: serif;
-                    line-height: 1;
-                }
-                
-                .report-footer {
-                    margin-top: 4rem;
-                    padding-top: 2rem;
-                    border-top: 2px solid #e2e8f0;
-                    text-align: center;
-                    font-size: 0.75rem;
-                    color: #94a3b8;
-                }
-                .report-footer p {
-                    margin: 0.25rem 0;
-                }
-                .footer-tech {
-                    color: #0d9488;
-                    font-weight: 500;
-                }
-                
-                /* Insights View */
-                .insights-wrapper {
-                    padding: 2rem;
-                    max-width: 1200px;
-                    margin: 0 auto;
-                }
-                .insights-wrapper h2 {
-                    font-size: 1.75rem;
-                    font-weight: 700;
-                    color: #1e293b;
-                    margin-bottom: 1.5rem;
-                }
-                .insight-cards {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                    gap: 1.5rem;
-                    margin-bottom: 2rem;
-                }
-                .card {
-                    padding: 1.5rem;
-                    border-radius: 12px;
-                    color: white;
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-                }
-                .card-teal {
-                    background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
-                }
-                .card-green {
-                    background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
-                }
-                .card-orange {
-                    background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
-                }
-                .card-pink {
-                    background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);
-                }
-                .card-header {
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    margin-bottom: 1rem;
-                }
-                .card-header h3 {
-                    font-size: 1rem;
-                    font-weight: 600;
-                    margin: 0;
-                }
-                .card-value {
-                    font-size: 2.5rem;
-                    font-weight: 700;
-                    margin-bottom: 0.5rem;
-                }
-                .card p {
-                    opacity: 0.9;
-                    margin: 0;
-                    font-size: 0.875rem;
-                }
-                
-                .takeaways {
-                    background: white;
-                    padding: 1.5rem;
-                    border-radius: 12px;
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-                    border: 1px solid #e2e8f0;
-                }
-                .takeaways h3 {
-                    display: flex;
-                    align-items: center;
-                    gap: 0.5rem;
-                    font-size: 1.25rem;
-                    font-weight: 600;
-                    color: #1e293b;
-                    margin: 0 0 1rem 0;
-                }
-                .takeaways h3 svg {
-                    color: #10b981;
-                }
-                .takeaways ul {
-                    list-style: none;
-                    padding: 0;
-                    margin: 0;
-                }
-                .takeaways li {
-                    padding-left: 1.5rem;
-                    margin: 0.75rem 0;
-                    position: relative;
-                    color: #475569;
-                    line-height: 1.6;
-                }
-                .takeaways li::before {
-                    content: '';
-                    position: absolute;
-                    left: 0;
-                    top: 0.5rem;
-                    width: 0.5rem;
-                    height: 0.5rem;
-                    background: #0d9488;
-                    border-radius: 50%;
-                }
-                
-                @media print {
-                    .modal-header, .header-actions, .stats-bar, .tab-nav {
-                        display: none !important;
-                    }
-                    .modal-overlay {
-                        background: white;
-                        padding: 0;
-                    }
-                    .modal-container {
-                        max-width: 100%;
-                        max-height: none;
-                        box-shadow: none;
-                    }
-                    .modal-body {
-                        overflow: visible;
-                    }
-                }
-            `}</style>
         </div>
     );
 };
-
-// Sample report with all diagram types
-const sampleReport = `
-## 🎯 Executive Summary
-
-This strategic analysis presents a comprehensive program design framework for educational transformation across multiple government schools. The intervention focuses on systemic capacity building through teacher training, curriculum innovation, and stakeholder engagement.
-
-## 🗺️ Project Ecosystem Map
-
-\`\`\`mermaid
-mindmap
-  root((Education Transformation))
-    Primary Stakeholders
-      Teachers
-      Students
-      School Leaders
-    System Actors
-      Block Officers
-      District Officials
-    Support Network
-      NGO Partners
-      Community Groups
-\`\`\`
-
-## 🔄 Theory of Change Framework
-
-\`\`\`mermaid
-graph LR
-  A[Teacher Capacity] -->|Improves| B[Teaching Quality]
-  B -->|Enhances| C[Student Engagement]
-  C -->|Drives| D[Learning Outcomes]
-  D -->|Achieves| E[Systemic Impact]
-  style A fill:#e1f5ff
-  style E fill:#c8e6c9
-\`\`\`
-
-## ⚠️ Risk Intelligence Matrix
-
-\`\`\`mermaid
-quadrantChart
-  x-axis Low Impact --> High Impact
-  y-axis Low Probability --> High Probability
-  Funding Delay: [0.7, 0.6]
-  Policy Change: [0.8, 0.3]
-  Teacher Attrition: [0.5, 0.7]
-\`\`\`
-
-## 📈 Implementation Roadmap
-
-\`\`\`mermaid
-gantt
-  title Project Timeline
-  dateFormat YYYY-MM-DD
-  section Phase 1
-  Setup & Training    :p1, 2024-02-01, 30d
-  section Phase 2
-  Pilot Implementation :p2, after p1, 60d
-  section Phase 3
-  Scaling & Evaluation :p3, after p2, 90d
-\`\`\`
-
-## 💡 Key Success Metrics
-
-| Metric | Baseline | Target | Timeline |
-|--------|----------|--------|----------|
-| Teacher Training | 0 | 500 | 6 months |
-| Student Reach | 0 | 15,000 | 12 months |
-| Learning Gain | Current | +30% | 18 months |
-
-## 🚀 Next Steps
-
-1. **Stakeholder Alignment** - Conduct orientation workshops
-2. **Resource Mobilization** - Secure funding commitments
-3. **Pilot Launch** - Begin implementation in 3 districts
-4. **Monitoring Setup** - Establish baseline data collection
-
-`;
 
 export default ResearchResult;

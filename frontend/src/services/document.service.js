@@ -1,18 +1,12 @@
 const API_URL = `${import.meta.env.VITE_API_URL}/ai`;
 
-/**
- * Upload and analyze a document using the backend AI service
- * @param {File} file - The document file to upload
- * @param {string} projectId - The project ID
- * @param {string} token - Clerk authentication token
- * @returns {Promise<Object>} Analysis result with extracted data
- */
+
 async function uploadAndAnalyze(file, projectId, token) {
     if (!token) {
         throw new Error('Authentication required');
     }
 
-    // Create form data
+
     const formData = new FormData();
     formData.append('document', file);
     formData.append('projectId', projectId);
@@ -28,7 +22,7 @@ async function uploadAndAnalyze(file, projectId, token) {
     const data = await response.json();
 
     if (!response.ok) {
-        // Handle specific error codes
+
         if (data.error === 'QUOTA_EXCEEDED') {
             throw new Error('Daily AI limit reached. Please try again tomorrow.');
         }
@@ -44,13 +38,7 @@ async function uploadAndAnalyze(file, projectId, token) {
     return data;
 }
 
-/**
- * Analyze a URL by fetching its content and extracting information
- * @param {string} url - The URL to analyze
- * @param {string} projectId - The project ID
- * @param {string} token - Clerk authentication token
- * @returns {Promise<Object>} Analysis result with extracted data
- */
+
 async function analyzeUrl(url, projectId, token) {
     if (!token) {
         throw new Error('Authentication required');
@@ -68,7 +56,7 @@ async function analyzeUrl(url, projectId, token) {
     const data = await response.json();
 
     if (!response.ok) {
-        // Handle specific error codes
+
         if (data.error === 'QUOTA_EXCEEDED') {
             throw new Error('Daily AI limit reached. Please try again tomorrow.');
         }

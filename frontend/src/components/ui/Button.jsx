@@ -50,9 +50,9 @@ export const Button = ({
   };
 
   const sizes = {
-    sm: 'px-4 py-2.5 text-sm min-h-[44px]',  // Mobile-friendly touch target
-    md: 'px-6 py-3 text-base min-h-[44px]',   // Mobile-friendly touch target
-    lg: 'px-8 py-4 text-lg min-h-[48px]'      // Larger touch target for primary CTAs
+    sm: 'px-4 py-2.5 text-sm min-h-[44px]',
+    md: 'px-6 py-3 text-base min-h-[44px]',
+    lg: 'px-8 py-4 text-lg min-h-[48px]'
   };
 
   return (

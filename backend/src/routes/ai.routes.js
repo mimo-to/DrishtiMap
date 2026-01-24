@@ -3,17 +3,12 @@ const router = express.Router();
 const aiController = require('../controllers/ai.controller');
 const clerkAuth = require('../middleware/clerkAuth');
 
-// POST /api/ai/suggest
-// Protected route: Authentication required
-// Rate limiting handled in Service layer (for finer user-level control)
+
 router.post('/suggest', clerkAuth, aiController.suggest);
 
 const researchService = require('../services/ai/research.service');
 
-/**
- * @route POST /api/ai/research
- * @desc Generate comprehensive research report for a project
- */
+
 router.post('/research', clerkAuth, async (req, res) => {
     try {
         const { userId } = req.auth;
@@ -36,17 +31,13 @@ router.post('/research', clerkAuth, async (req, res) => {
 const documentService = require('../services/ai/document.service');
 const { upload } = require('../middleware/upload');
 
-/**
- * @route POST /api/ai/analyze-document
- * @desc Analyze uploaded document (PDF/image) and extract LFA information
- * @access Protected
- */
+
 router.post('/analyze-document', clerkAuth, upload.single('document'), async (req, res) => {
     try {
         const { userId } = req.auth;
         const { projectId } = req.body;
 
-        // Validate inputs
+
         if (!projectId) {
             return res.status(400).json({ 
                 success: false, 
@@ -66,7 +57,7 @@ router.post('/analyze-document', clerkAuth, upload.single('document'), async (re
         console.log(`📤 Document upload from user ${userId} for project ${projectId}`);
         console.log(`📄 File: ${req.file.originalname} (${req.file.mimetype}, ${req.file.size} bytes)`);
 
-        // Analyze the document
+
         const result = await documentService.analyzeDocument(
             req.file.buffer,
             req.file.mimetype
@@ -77,7 +68,7 @@ router.post('/analyze-document', clerkAuth, upload.single('document'), async (re
     } catch (error) {
         console.error('❌ Document Analysis Route Error:', error);
 
-        // Handle specific error types
+
         if (error.code === 'QUOTA_EXCEEDED') {
             return res.status(429).json({
                 success: false,
@@ -86,7 +77,7 @@ router.post('/analyze-document', clerkAuth, upload.single('document'), async (re
             });
         }
 
-        // Handle multer errors (file too large, wrong type)
+
         if (error.message && error.message.includes('File too large')) {
             return res.status(400).json({
                 success: false,
@@ -103,7 +94,7 @@ router.post('/analyze-document', clerkAuth, upload.single('document'), async (re
             });
         }
 
-        // Generic error
+
         res.status(500).json({ 
             success: false, 
             error: 'ANALYSIS_FAILED',
@@ -112,17 +103,13 @@ router.post('/analyze-document', clerkAuth, upload.single('document'), async (re
     }
 });
 
-/**
- * @route POST /api/ai/analyze-url
- * @desc Fetch and analyze content from a URL
- * @access Protected
- */
+
 router.post('/analyze-url', clerkAuth, async (req, res) => {
     try {
         const { userId } = req.auth;
         const { url, projectId } = req.body;
 
-        // Validate inputs
+
         if (!projectId) {
             return res.status(400).json({ 
                 success: false, 
@@ -139,7 +126,7 @@ router.post('/analyze-url', clerkAuth, async (req, res) => {
             });
         }
 
-        // Basic URL validation
+
         try {
             new URL(url);
         } catch (e) {
@@ -153,7 +140,7 @@ router.post('/analyze-url', clerkAuth, async (req, res) => {
         console.log(`🔗 URL analysis from user ${userId} for project ${projectId}`);
         console.log(`📄 URL: ${url}`);
 
-        // Fetch and analyze the URL content
+
         const result = await documentService.analyzeUrl(url);
 
         res.json(result);
@@ -161,7 +148,7 @@ router.post('/analyze-url', clerkAuth, async (req, res) => {
     } catch (error) {
         console.error('❌ URL Analysis Route Error:', error);
 
-        // Handle specific error types
+
         if (error.code === 'QUOTA_EXCEEDED') {
             return res.status(429).json({
                 success: false,
@@ -178,7 +165,7 @@ router.post('/analyze-url', clerkAuth, async (req, res) => {
             });
         }
 
-        // Generic error
+
         res.status(500).json({ 
             success: false, 
             error: 'ANALYSIS_FAILED',

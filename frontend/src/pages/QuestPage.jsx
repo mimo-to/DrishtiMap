@@ -5,7 +5,7 @@ import { useQuestStore } from '../quest/engine/useQuestStore';
 import QuestLevel from '../quest/ui/QuestLevel';
 import { LEVELS, getLevelById, getNextLevelId, getPrevLevelId } from '../quest/config/levels';
 
-// import { useAutoSave } from '../hooks/useAutoSave';
+
 
 const QuestPage = () => {
     const { projectId, levelId } = useParams();
@@ -20,19 +20,15 @@ const QuestPage = () => {
         hasUnsavedChanges
     } = useQuestStore();
 
-    const [saveStatus, setSaveStatus] = React.useState(null); // 'saving', 'saved', 'error'
+    const [saveStatus, setSaveStatus] = React.useState(null);
     const loadedProjectRef = React.useRef(null);
 
-    // 0. Hydration (Restore State on Refresh)
+
     useEffect(() => {
         const hydrate = async () => {
-            // Only load if:
-            // 1. We have a projectId
-            // 2. It's different from current
-            // 3. We haven't already loaded this project
-            // 4. User is authenticated
+
             if (projectId && projectId !== currentProjectId && projectId !== loadedProjectRef.current && userId) {
-                console.log("Hydrating project from URL:", projectId);
+
                 loadedProjectRef.current = projectId;
                 const token = await getToken();
                 await loadProject(projectId, token);
@@ -40,23 +36,22 @@ const QuestPage = () => {
         };
         hydrate();
     }, [projectId, userId, currentProjectId, getToken]);
-    // Removed loadProject from dependencies to prevent re-renders
 
-    // 1. Calculations
-    // Default to first level if undefined
+
+
     const activeLevelId = levelId || LEVELS[0].id;
     const levelConfig = getLevelById(activeLevelId);
 
     const isFirst = activeLevelId === LEVELS[0].id;
     const isLast = activeLevelId === LEVELS[LEVELS.length - 1].id;
 
-    // 2. Handlers
+
     const handleNext = () => {
         const nextId = getNextLevelId(activeLevelId);
         if (nextId) {
             navigate(`/quest/${projectId}/${nextId}`);
         } else {
-            // Completed last level - go to dashboard or summary
+
             navigate('/dashboard');
         }
     };
@@ -72,7 +67,7 @@ const QuestPage = () => {
         if (!userId) return false;
         setSaveStatus('saving');
         const token = await getToken();
-        // Simple title derivation for now
+
         const title = answers['q_problem_core'] || "Untitled Project";
         const result = await saveProject(token, title);
         if (result.success) {
@@ -86,16 +81,9 @@ const QuestPage = () => {
         }
     };
 
-    // 3. Auto-Save Integration (Must be before Validation/Early Returns)
-    // 3. Auto-Save Integration (DISABLED)
-    // useAutoSave({
-    //     triggerSave: handleSave,
-    //     hasChanges: hasUnsavedChanges
-    // });
 
-    // 4. Validations & Redirects
 
-    // If loading a new project, show spinner
+
     if (isLoading && projectId !== currentProjectId) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-stone-50">

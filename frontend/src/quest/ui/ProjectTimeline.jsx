@@ -6,7 +6,7 @@ import { CheckCircle, Circle, ArrowDown } from 'lucide-react';
 const ProjectTimeline = ({ currentLevelId, onJumpToLevel }) => {
     const { selectedSuggestions, answers } = useQuestStore();
 
-    // Helper to check if a level has data
+
     const hasData = (levelId) => {
         return (selectedSuggestions[levelId] && selectedSuggestions[levelId].length > 0) ||
             (answers[levelId] && Object.keys(answers[levelId]).length > 0);
@@ -19,7 +19,7 @@ const ProjectTimeline = ({ currentLevelId, onJumpToLevel }) => {
             </h3>
 
             <div className="relative">
-                {/* Vertical Line Container */}
+
                 <div className="absolute left-4 top-2 bottom-2 w-0.5 bg-stone-200" aria-hidden="true" />
 
                 <div className="space-y-8 relative">
@@ -30,7 +30,7 @@ const ProjectTimeline = ({ currentLevelId, onJumpToLevel }) => {
 
                         return (
                             <div key={level.id} className="relative pl-10">
-                                {/* Node Indicator */}
+
                                 <div
                                     className={`absolute left-0 w-8 h-8 rounded-full border-2 flex items-center justify-center z-10 bg-white transition-colors cursor-pointer
                                         ${isActive ? 'border-teal-700 text-teal-700' :
@@ -41,7 +41,7 @@ const ProjectTimeline = ({ currentLevelId, onJumpToLevel }) => {
                                     {isCompleted ? <CheckCircle size={16} /> : <Circle size={16} />}
                                 </div>
 
-                                {/* Content */}
+
                                 <div className="min-h-[3rem]">
                                     <div
                                         className={`text-sm font-display font-semibold mb-2 cursor-pointer
@@ -52,7 +52,7 @@ const ProjectTimeline = ({ currentLevelId, onJumpToLevel }) => {
                                         {level.title}
                                     </div>
 
-                                    {/* Selections Cards */}
+
                                     {selections.length > 0 ? (
                                         <div className="space-y-3">
                                             {selections.map((item, idx) => (
@@ -60,7 +60,7 @@ const ProjectTimeline = ({ currentLevelId, onJumpToLevel }) => {
                                                     key={idx}
                                                     className="bg-teal-50 border border-teal-100 rounded-md p-2 text-xs font-body text-stone-700 shadow-sm relative group animate-fade-in-up"
                                                 >
-                                                    {/* Little Connector Arrow for cards */}
+
                                                     {idx > 0 && (
                                                         <div className="absolute -top-3 left-4 text-teal-200">
                                                             <ArrowDown size={12} />

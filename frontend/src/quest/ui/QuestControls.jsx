@@ -5,7 +5,7 @@ import { Sparkles } from 'lucide-react';
 const QuestControls = ({ onNext, onBack, onSuggest, isFirst, isLast }) => {
     return (
         <div className="flex flex-col sm:flex-row justify-between gap-4 mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-100">
-            {/* Back Button */}
+
             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                 {!isFirst && (
                     <Button variant="secondary" onClick={onBack} className="w-full sm:w-auto">
@@ -19,7 +19,7 @@ const QuestControls = ({ onNext, onBack, onSuggest, isFirst, isLast }) => {
                 </Button>
             </div>
 
-            {/* Next Button */}
+
             <div className="w-full sm:w-auto">
                 <Button variant="primary" onClick={onNext} className="w-full sm:w-auto">
                     {isLast ? 'Finish Level' : 'Next Level'}

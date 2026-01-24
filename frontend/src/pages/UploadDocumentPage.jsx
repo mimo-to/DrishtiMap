@@ -12,16 +12,16 @@ const UploadDocumentPage = () => {
     const { getToken } = useAuth();
     const { prefillFromDocument } = useQuestStore();
 
-    const [uploadMode, setUploadMode] = useState('file'); // 'file' or 'url'
+    const [uploadMode, setUploadMode] = useState('file');
     const [url, setUrl] = useState('');
     const [file, setFile] = useState(null);
     const [isDragging, setIsDragging] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [error, setError] = useState(null);
 
-    // File validation
+
     const validateFile = (file) => {
-        const maxSize = 10 * 1024 * 1024; // 10MB
+        const maxSize = 10 * 1024 * 1024;
         const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
 
         if (!allowedTypes.includes(file.type)) {
@@ -35,7 +35,7 @@ const UploadDocumentPage = () => {
         return true;
     };
 
-    // Handle file selection
+
     const handleFileSelect = (selectedFile) => {
         try {
             setError(null);
@@ -47,7 +47,7 @@ const UploadDocumentPage = () => {
         }
     };
 
-    // Handle drag and drop
+
     const handleDragOver = (e) => {
         e.preventDefault();
         setIsDragging(true);
@@ -68,7 +68,7 @@ const UploadDocumentPage = () => {
         }
     };
 
-    // Handle file input change
+
     const handleFileInputChange = (e) => {
         const selectedFile = e.target.files[0];
         if (selectedFile) {
@@ -76,7 +76,7 @@ const UploadDocumentPage = () => {
         }
     };
 
-    // Upload and analyze
+
     const handleUpload = async () => {
         if (!file) return;
 
@@ -87,19 +87,19 @@ const UploadDocumentPage = () => {
             const token = await getToken();
             const result = await documentService.uploadAndAnalyze(file, projectId, token);
 
-            // Pre-fill the quest form with extracted data
+
             if (result.success && result.extractedData) {
                 prefillFromDocument(result.extractedData);
 
-                // Auto-save the pre-filled data immediately
-                console.log('💾 Auto-saving pre-filled data...');
+
+
                 const saveResult = await useQuestStore.getState().saveProject(token);
                 if (saveResult && saveResult.success) {
-                    console.log('✅ Pre-filled data saved successfully');
+
                 }
             }
 
-            // Navigate to the first quest level
+
             navigate(`/quest/${projectId}/context`);
 
         } catch (err) {
@@ -109,7 +109,7 @@ const UploadDocumentPage = () => {
         }
     };
 
-    // Analyze URL
+
     const handleUrlAnalysis = async () => {
         if (!url.trim()) return;
 
@@ -120,19 +120,19 @@ const UploadDocumentPage = () => {
             const token = await getToken();
             const result = await documentService.analyzeUrl(url, projectId, token);
 
-            // Pre-fill the quest form with extracted data
+
             if (result.success && result.extractedData) {
                 prefillFromDocument(result.extractedData);
 
-                // Auto-save the pre-filled data immediately
-                console.log('💾 Auto-saving pre-filled data...');
+
+
                 const saveResult = await useQuestStore.getState().saveProject(token);
                 if (saveResult && saveResult.success) {
-                    console.log('✅ Pre-filled data saved successfully');
+
                 }
             }
 
-            // Navigate to the first quest level
+
             navigate(`/quest/${projectId}/context`);
 
         } catch (err) {
@@ -142,12 +142,12 @@ const UploadDocumentPage = () => {
         }
     };
 
-    // Skip and go to manual entry
+
     const handleSkip = () => {
         navigate(`/quest/${projectId}/context`);
     };
 
-    // Get file icon based on type
+
     const getFileIcon = () => {
         if (!file) return <Upload className="w-12 h-12 text-stone-400" />;
         if (file.type === 'application/pdf') return <FileText className="w-12 h-12 text-red-500" />;
@@ -158,7 +158,7 @@ const UploadDocumentPage = () => {
         <div className="min-h-screen bg-gradient-to-br from-stone-50 via-white to-teal-50">
             <div className="container mx-auto px-6 py-12">
                 <div className="max-w-2xl mx-auto">
-                    {/* Header */}
+
                     <div className="text-center mb-8">
                         <div className="inline-flex items-center justify-center w-16 h-16 bg-teal-100 rounded-full mb-4">
                             <Sparkles className="w-8 h-8 text-teal-700" />
@@ -171,7 +171,7 @@ const UploadDocumentPage = () => {
                         </p>
                     </div>
 
-                    {/* Mode Tabs */}
+
                     <div className="flex gap-2 mb-6">
                         <button
                             onClick={() => setUploadMode('file')}
@@ -180,7 +180,7 @@ const UploadDocumentPage = () => {
                                 : 'bg-white text-stone-600 border border-stone-200 hover:border-teal-300'
                                 }`}
                         >
-                            📄 Upload File
+                            Upload File
                         </button>
                         <button
                             onClick={() => setUploadMode('url')}
@@ -189,11 +189,11 @@ const UploadDocumentPage = () => {
                                 : 'bg-white text-stone-600 border border-stone-200 hover:border-teal-300'
                                 }`}
                         >
-                            🔗 Paste URL
+                            Paste URL
                         </button>
                     </div>
 
-                    {/* Upload Area */}
+
                     {uploadMode === 'file' ? (
                         <div className="bg-white rounded-2xl shadow-lg border border-stone-200 p-8 mb-6">
                             <div
@@ -244,7 +244,7 @@ const UploadDocumentPage = () => {
                                 </label>
                             </div>
 
-                            {/* Error Message */}
+
                             {error && (
                                 <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
                                     <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
@@ -252,7 +252,7 @@ const UploadDocumentPage = () => {
                                 </div>
                             )}
 
-                            {/* Action Buttons */}
+
                             <div className="mt-6 flex gap-3">
                                 <Button
                                     variant="primary"
@@ -295,7 +295,7 @@ const UploadDocumentPage = () => {
                                 </p>
                             </div>
 
-                            {/* Error Message */}
+
                             {error && (
                                 <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
                                     <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
@@ -303,7 +303,7 @@ const UploadDocumentPage = () => {
                                 </div>
                             )}
 
-                            {/* Action Button */}
+
                             <div className="mt-6">
                                 <Button
                                     variant="primary"
@@ -327,7 +327,7 @@ const UploadDocumentPage = () => {
                         </div>
                     )}
 
-                    {/* Skip Option */}
+
                     <div className="text-center">
                         <button
                             onClick={handleSkip}
@@ -339,9 +339,9 @@ const UploadDocumentPage = () => {
                         </button>
                     </div>
 
-                    {/* Info Box */}
+
                     <div className="mt-8 p-6 bg-blue-50 border border-blue-200 rounded-xl">
-                        <h3 className="font-semibold text-blue-900 mb-2">💡 How it works</h3>
+                        <h3 className="font-semibold text-blue-900 mb-2">How it works</h3>
                         <ul className="text-sm text-blue-800 space-y-2">
                             <li>• Upload a news article, report, or photo about your issue</li>
                             <li>• AI extracts key information automatically</li>

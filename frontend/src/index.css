@@ -1,8 +1,7 @@
-/* CSS Variables & Design System - ORDER MATTERS */
-@import './styles/variables.css';    /* 1. CSS custom properties FIRST */
-@import './styles/typography.css';   /* 2. Font setup */
-@import './styles/patterns.css';     /* 3. Background patterns */
-@import './styles/animations.css';   /* 4. Animations LAST */
+@import './styles/variables.css';
+@import './styles/typography.css';
+@import './styles/patterns.css';
+@import './styles/animations.css';
 
 @tailwind base;
 @tailwind components;

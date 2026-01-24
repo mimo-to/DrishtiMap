@@ -1,4 +1,4 @@
-/* Keyframe Animations */
+
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
@@ -33,7 +33,7 @@
     100% { transform: translateX(100%); }
 }
 
-/* Utility Classes */
+
 .animate-fade-in {
     animation: fadeIn 0.5s ease-out forwards;
 }
@@ -54,7 +54,7 @@
     animation: spin 3s linear infinite;
 }
 
-/* Stagger Delays */
+
 .delay-100 { animation-delay: 100ms; }
 .delay-200 { animation-delay: 200ms; }
 .delay-300 { animation-delay: 300ms; }

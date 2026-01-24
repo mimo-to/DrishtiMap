@@ -4,7 +4,7 @@ import { ClerkProvider } from '@clerk/clerk-react'
 import App from './App.jsx'
 import './index.css'
 
-// 🚨 HARDCODED FOR DEMO STABILITY - DO NOT CHANGE 🚨
+
 const PUBLISHABLE_KEY = 'pk_test_dGhvcm91Z2gtd29tYmF0LTI4LmNsZXJrLmFjY291bnRzLmRldiQ'
 
 if (!PUBLISHABLE_KEY) {

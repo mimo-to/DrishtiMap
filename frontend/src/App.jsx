@@ -6,7 +6,7 @@ import SignInPage from './pages/SignInPage';
 import SignUpPage from './pages/SignUpPage';
 import Dashboard from './pages/Dashboard';
 import NotFound from './pages/NotFound';
-import QuestPage from './pages/QuestPage'; // Import QuestPage
+import QuestPage from './pages/QuestPage';
 import UploadDocumentPage from './pages/UploadDocumentPage';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 
@@ -27,9 +27,9 @@ function App() {
                     <Route element={<ProtectedRoute />}>
                         <Route element={<MainLayout />}>
                             <Route path="/dashboard" element={<Dashboard />} />
-                            {/* Document Upload Route */}
+
                             <Route path="/quest/:projectId/upload" element={<UploadDocumentPage />} />
-                            {/* Quest Routes with Project Context */}
+
                             <Route path="/quest/:projectId" element={<QuestPage />} />
                             <Route path="/quest/:projectId/:levelId" element={<QuestPage />} />
                         </Route>

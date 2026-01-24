@@ -2,14 +2,12 @@ require('dotenv').config();
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const Groq = require("groq-sdk");
 
-// --- CONFIGURATION ---
 const ENABLE_AI = process.env.ENABLE_AI === 'true';
 
 let model = null;
 let groq = null;
 
 if (ENABLE_AI) {
-  // 1. GEMINI SETUP
   const GEMINI_KEY = process.env.GOOGLE_API_KEY;
   const GEMINI_MODEL_NAME = process.env.GEMINI_MODEL || "gemini-1.5-flash";
 
@@ -25,7 +23,6 @@ if (ENABLE_AI) {
     }
   }
 
-  // 2. GROQ SETUP
   const GROQ_KEY = process.env.GROQ_API_KEY;
   if (!GROQ_KEY) {
      console.warn("[AI Config] WARNING: GROQ_API_KEY missing. Groq features disabled.");

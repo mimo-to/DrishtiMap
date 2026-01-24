@@ -5,9 +5,7 @@ async function suggest(levelId, input, token, contextData = {}) {
     throw new Error("AI Service requires a valid auth token.");
   }
   
-  // Construct promptId from level (e.g. "problem_statement" -> "problem_statement.suggest")
-  // In a real app we might map this more robustly.
-  const promptAction = 'suggest'; // Locked for now
+  const promptAction = 'suggest';
   const promptId = `${levelId}.${promptAction}`;
   
   const response = await fetch(`${API_URL}/suggest`, {
@@ -18,10 +16,10 @@ async function suggest(levelId, input, token, contextData = {}) {
     },
     body: JSON.stringify({
       input,
-      promptId, // "level.action"
+      promptId,
       context: { 
         lfaLevel: levelId,
-        ...contextData // Pass full context (e.g. answers)
+        ...contextData
       }
     })
   });
@@ -30,13 +28,12 @@ async function suggest(levelId, input, token, contextData = {}) {
   try {
     data = await response.json();
   } catch (e) {
-    // If JSON parse fails, throw generic or text
+
     throw new Error(response.statusText || 'AI Service Error (Non-JSON)');
   }
 
   if (!response.ok) {
-    // Backend returns { error: "...", details: "..." }
-    // We want to show the 'error' field or 'details' if helpful.
+
     const message = data.error || data.message || 'AI Service Error';
     const details = data.details ? ` (${data.details})` : '';
     throw new Error(message + details);
@@ -47,9 +44,7 @@ async function suggest(levelId, input, token, contextData = {}) {
 
 export const aiService = {
   suggest,
-    /**
-     * Generate Research Report
-     */
+
     async generateResearch(projectId, token) {
         try {
             const response = await fetch(`${API_URL}/research`, {
@@ -65,7 +60,7 @@ export const aiService = {
             if (!data.success) {
                 throw new Error(data.error || 'Research generation failed');
             }
-            return data.report; // { reportMarkdown, generatedAt }
+            return data.report;
         } catch (error) {
             console.error('Research API Error:', error);
             throw error;

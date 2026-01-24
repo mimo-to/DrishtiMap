@@ -2,9 +2,7 @@ export const Footer = () => {
     return (
         <footer className="bg-stone-100 border-t border-stone-200 mt-20">
             <div className="container mx-auto px-6 py-12">
-                {/* Main Footer Content */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-                    {/* Brand Column */}
                     <div>
                         <h3 className="font-display font-bold text-lg text-stone-900 mb-4">
                             DrishtiMap
@@ -14,7 +12,6 @@ export const Footer = () => {
                         </p>
                     </div>
 
-                    {/* Product Links */}
                     <div>
                         <h4 className="font-display font-semibold text-stone-900 mb-4">Product</h4>
                         <ul className="space-y-2">
@@ -24,7 +21,6 @@ export const Footer = () => {
                         </ul>
                     </div>
 
-                    {/* Company Links */}
                     <div>
                         <h4 className="font-display font-semibold text-stone-900 mb-4">Company</h4>
                         <ul className="space-y-2">
@@ -34,7 +30,6 @@ export const Footer = () => {
                         </ul>
                     </div>
 
-                    {/* Legal Links */}
                     <div>
                         <h4 className="font-display font-semibold text-stone-900 mb-4">Legal</h4>
                         <ul className="space-y-2">
@@ -45,7 +40,6 @@ export const Footer = () => {
                     </div>
                 </div>
 
-                {/* Bottom Bar */}
                 <div className="border-t border-stone-300 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
                     <p className="font-body text-sm text-stone-600">
                         © {new Date().getFullYear()} DrishtiMap. All rights reserved.

@@ -28,32 +28,27 @@ const projectSchema = new mongoose.Schema({
   version: {
     type: Number,
     default: 1
-    // Note: Increment this only on explicit 'Save Version' actions
   },
   template: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Template'
   },
-  // Rich Metadata & Stats
   meta: {
     lastOpenedAt: { type: Date, default: Date.now },
     completionPercent: { type: Number, default: 0, min: 0, max: 100 },
     wordCount: { type: Number, default: 0 }
   },
-  // Activity Tracking
   activity: {
     lastSavedAt: { type: Date, default: Date.now },
     lastAIUsedAt: { type: Date, default: null }
   },
-  // Flexible content storage
   data: {
     type: mongoose.Schema.Types.Mixed,
     default: {}
   },
-  // Legacy fields (optional support for structured data if needed, but data is primary now)
   lfaData: {
     type: mongoose.Schema.Types.Mixed,
-    default: {} 
+    default: {}
   },
   createdAt: {
     type: Date,
@@ -65,7 +60,6 @@ const projectSchema = new mongoose.Schema({
   }
 });
 
-// Compound Index for efficient dashboard sorting and filtering
 projectSchema.index({ clerkUserId: 1, isDeleted: 1, updatedAt: -1 });
 
 projectSchema.pre('save', function(next) {

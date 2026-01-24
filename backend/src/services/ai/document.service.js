@@ -1,11 +1,5 @@
 const { model, ENABLE_AI } = require('../../config/ai');
 
-/**
- * Document Analysis Service
- * Uses Gemini Flash Vision to extract LFA-relevant information from PDFs and images
- */
-
-// Simple in-memory quota tracker (resets daily)
 const quotaTracker = {
     date: new Date().toDateString(),
     count: 0,
@@ -15,7 +9,6 @@ const quotaTracker = {
 const checkQuota = () => {
     const today = new Date().toDateString();
     
-    // Reset counter if it's a new day
     if (quotaTracker.date !== today) {
         quotaTracker.date = today;
         quotaTracker.count = 0;
@@ -28,7 +21,7 @@ const checkQuota = () => {
     }
     
     quotaTracker.count++;
-    console.log(`📊 Quota: ${quotaTracker.count}/${quotaTracker.MAX_DAILY} used today`);
+    console.log(`Quota: ${quotaTracker.count}/${quotaTracker.MAX_DAILY} used today`);
 };
 
 const buildExtractionPrompt = () => {
@@ -57,12 +50,10 @@ CRITICAL: Return ONLY valid JSON with these exact keys. Do not include any markd
 };
 
 const validateExtractedData = (data) => {
-    // Ensure we have an object
     if (!data || typeof data !== 'object') {
         return false;
     }
     
-    // Check if at least one field has content
     const hasContent = Object.values(data).some(value => 
         value && typeof value === 'string' && value.trim().length > 0
     );
@@ -70,12 +61,6 @@ const validateExtractedData = (data) => {
     return hasContent;
 };
 
-/**
- * Analyze a document using Gemini Flash Vision
- * @param {Buffer} fileBuffer - The file content as a buffer
- * @param {string} mimeType - MIME type of the file (e.g., 'application/pdf', 'image/jpeg')
- * @returns {Promise<Object>} Extracted data object
- */
 const analyzeDocument = async (fileBuffer, mimeType) => {
     if (!ENABLE_AI) {
         throw new Error('AI is disabled');
@@ -85,16 +70,13 @@ const analyzeDocument = async (fileBuffer, mimeType) => {
         throw new Error('Gemini model not configured');
     }
     
-    // Check quota before processing
     checkQuota();
     
     try {
-        console.log('🔍 Analyzing document with Gemini Flash Vision...');
+        console.log('Analyzing document with Gemini Flash Vision...');
         
-        // Convert buffer to base64 for Gemini
         const base64Data = fileBuffer.toString('base64');
         
-        // Prepare the multimodal content
         const imagePart = {
             inlineData: {
                 data: base64Data,
@@ -104,30 +86,25 @@ const analyzeDocument = async (fileBuffer, mimeType) => {
         
         const prompt = buildExtractionPrompt();
         
-        // Generate content with vision
         const result = await model.generateContent([prompt, imagePart]);
         const response = await result.response;
         const text = response.text();
         
-        console.log('📄 Raw AI response:', text.substring(0, 200) + '...');
+        console.log('Raw AI response:', text.substring(0, 200) + '...');
         
-        // Parse JSON response
-        let extractedData;
         try {
-            // Remove markdown code blocks if present
             const cleanedText = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
             extractedData = JSON.parse(cleanedText);
         } catch (parseError) {
-            console.error('❌ JSON parse error:', parseError.message);
+            console.error('JSON parse error:', parseError.message);
             throw new Error('Failed to parse AI response as JSON');
         }
         
-        // Validate extracted data
         if (!validateExtractedData(extractedData)) {
             throw new Error('No relevant information could be extracted from the document');
         }
         
-        console.log('✅ Successfully extracted data from document');
+        console.log('Successfully extracted data from document');
         
         return {
             success: true,
@@ -139,19 +116,17 @@ const analyzeDocument = async (fileBuffer, mimeType) => {
                 q4_indicators: extractedData.q4_indicators || '',
                 geographic_context: extractedData.geographic_context || ''
             },
-            confidence: 'medium', // Could be enhanced with AI confidence scoring
+            confidence: 'medium',
             documentType: mimeType.includes('pdf') ? 'pdf' : 'image'
         };
         
     } catch (error) {
-        console.error('❌ Document analysis failed:', error);
+        console.error('Document analysis failed:', error);
         
-        // Handle quota errors specifically
         if (error.code === 'QUOTA_EXCEEDED') {
             throw error;
         }
         
-        // Handle Gemini API errors
         if (error.message && error.message.includes('quota')) {
             const quotaError = new Error('Daily AI quota exceeded');
             quotaError.code = 'QUOTA_EXCEEDED';
@@ -162,11 +137,6 @@ const analyzeDocument = async (fileBuffer, mimeType) => {
     }
 };
 
-/**
- * Analyze a URL by fetching its content and extracting information
- * @param {string} url - The URL to fetch and analyze
- * @returns {Promise<Object>} Extracted data object
- */
 const analyzeUrl = async (url) => {
     if (!ENABLE_AI) {
         throw new Error('AI is disabled');
@@ -176,17 +146,13 @@ const analyzeUrl = async (url) => {
         throw new Error('Gemini model not configured');
     }
     
-    // Check quota before processing
     checkQuota();
     
     try {
-        console.log('🔍 Fetching URL content...');
+        console.log('Fetching URL content...');
         
-        // Create abort controller for timeout
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
         
-        // Fetch the URL content
         const response = await fetch(url, {
             headers: {
                 'User-Agent': 'Mozilla/5.0 (compatible; DrishtiMap/1.0)'
@@ -202,21 +168,17 @@ const analyzeUrl = async (url) => {
         
         const html = await response.text();
         
-        // Extract text content from HTML (simple approach)
-        // Remove script and style tags
         const cleanHtml = html
             .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
             .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
-            .replace(/<[^>]+>/g, ' ') // Remove HTML tags
-            .replace(/\s+/g, ' ') // Normalize whitespace
+            .replace(/<[^>]+>/g, ' ')
+            .replace(/\s+/g, ' ')
             .trim();
         
-        // Limit content length (Gemini has token limits)
         const contentToAnalyze = cleanHtml.substring(0, 10000);
         
         console.log('📄 Extracted content length:', contentToAnalyze.length);
         
-        // Analyze with Gemini
         const prompt = buildExtractionPrompt();
         const fullPrompt = `${prompt}\n\nCONTENT TO ANALYZE:\n${contentToAnalyze}`;
         
@@ -224,24 +186,24 @@ const analyzeUrl = async (url) => {
         const responseText = await result.response;
         const text = responseText.text();
         
-        console.log('📄 Raw AI response:', text.substring(0, 200) + '...');
+        console.log('Raw AI response:', text.substring(0, 200) + '...');
         
-        // Parse JSON response
+
         let extractedData;
         try {
             const cleanedText = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
             extractedData = JSON.parse(cleanedText);
         } catch (parseError) {
-            console.error('❌ JSON parse error:', parseError.message);
+            console.error('JSON parse error:', parseError.message);
             throw new Error('Failed to parse AI response as JSON');
         }
         
-        // Validate extracted data
+
         if (!validateExtractedData(extractedData)) {
             throw new Error('No relevant information could be extracted from the URL');
         }
         
-        console.log('✅ Successfully extracted data from URL');
+        console.log('Successfully extracted data from URL');
         
         return {
             success: true,
@@ -258,14 +220,12 @@ const analyzeUrl = async (url) => {
         };
         
     } catch (error) {
-        console.error('❌ URL analysis failed:', error);
+        console.error('URL analysis failed:', error);
         
-        // Handle quota errors specifically
         if (error.code === 'QUOTA_EXCEEDED') {
             throw error;
         }
         
-        // Handle Gemini API errors
         if (error.message && error.message.includes('quota')) {
             const quotaError = new Error('Daily AI quota exceeded');
             quotaError.code = 'QUOTA_EXCEEDED';

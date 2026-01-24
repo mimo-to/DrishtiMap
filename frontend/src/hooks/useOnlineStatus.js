@@ -1,9 +1,6 @@
 import { useState, useEffect } from 'react';
 
-/**
- * useOnlineStatus Hook
- * Returns boolean indicating network connectivity.
- */
+
 export const useOnlineStatus = () => {
     const [isOnline, setIsOnline] = useState(navigator.onLine);
 

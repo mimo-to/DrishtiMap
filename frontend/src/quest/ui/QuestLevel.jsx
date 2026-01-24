@@ -1,4 +1,4 @@
-// ... imports
+
 import React, { useState } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -20,11 +20,11 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
     const [globalError, setGlobalError] = useState(null);
     const { submitAnswer, answers, selectedSuggestions, toggleSuggestion, clearSelections, refreshProject } = useQuestStore();
 
-    // Research State
+
     const [isResearching, setIsResearching] = useState(false);
     const [researchReport, setResearchReport] = useState(null);
 
-    // LOAD SAVED RESEARCH
+
     const { projects, currentProjectId } = useQuestStore();
     const currentProject = projects.find(p => p._id === projectId || p._id === currentProjectId);
     const savedResearch = currentProject?.data?.research;
@@ -32,7 +32,7 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
     const handleResearch = async () => {
         if (!projectId) return;
 
-        // Auto-save first to ensure AI has latest data
+
         if (onSave) {
             const saved = await onSave();
             if (!saved) {
@@ -45,12 +45,12 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
         try {
             const token = await getToken();
             const report = await aiService.generateResearch(projectId, token);
-            // report is { reportMarkdown: string, generatedAt: date }
 
-            // Backend now saves it, but we update local state to show it immediately
+
+
             setResearchReport(report.reportMarkdown || report);
 
-            // Refresh project data to sync the saved research report
+
             await refreshProject(projectId, token);
         } catch (error) {
             console.error("Research Error:", error);
@@ -58,7 +58,7 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
             if (error.message.includes('VS_QUOTA_EXCEEDED')) {
                 setGlobalError("🚨 Daily AI Research Limit Reached. Please try again tomorrow! (Free Tier Limit)");
             } else {
-                // Show the actual error message for debugging
+
                 const errorMsg = error.message || "Unknown error occurred";
                 setGlobalError(`Failed to generate research report: ${errorMsg}`);
                 console.error("Full error details:", error);
@@ -68,27 +68,27 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
         }
     };
 
-    // View Saved Report Handler
+
     const handleViewSavedReport = () => {
         if (savedResearch && savedResearch.markdown) {
             setResearchReport(savedResearch.markdown);
         }
     };
 
-    // EXTRACT DATA FOR CONTEXT
+
     const currentLevelData = levelConfig.questions.reduce((acc, q) => {
         if (answers[q.id]) acc[q.id] = answers[q.id];
         return acc;
     }, {});
 
     const handleJumpToLevel = (targetLevelId) => {
-        // Only navigate if we have a project ID context
+
         if (targetLevelId && projectId) {
             navigate(`/quest/${projectId}/${targetLevelId}`);
         }
     };
 
-    // AI STATE
+
     const [aiState, setAiState] = useState({
         suggestions: [],
         rawResponse: null,
@@ -114,11 +114,11 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
 
             const token = await getToken();
 
-            // CONTEXT EXPANSION: Pass full project history for AI memory
+
             const fullContext = {
-                currentLevelData, // Data from this specific level
-                allAnswers: answers, // Global answers from previous levels
-                allSelections: selectedSuggestions // Global AI selections from previous levels
+                currentLevelData,
+                allAnswers: answers,
+                allSelections: selectedSuggestions
             };
 
             const result = await aiService.suggest(levelConfig.id, input, token, fullContext);
@@ -166,7 +166,7 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
-            {/* Project Name Header */}
+
             {currentProject && (
                 <div className="mb-4 pb-3 border-b border-gray-200">
                     <div className="flex items-center gap-2">
@@ -178,7 +178,7 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
                 </div>
             )}
 
-            {/* Mobile Timeline - Show at top on mobile */}
+
             <div className="lg:hidden mb-6">
                 <ProjectTimeline
                     currentLevelId={levelConfig.id}
@@ -187,7 +187,7 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
             </div>
 
             <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
-                {/* Main Content Area */}
+
                 <div className="flex-1 min-w-0">
                     <div className="mb-4 sm:mb-6">
                         <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{levelConfig.title}</h2>
@@ -236,7 +236,7 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
                     </Card>
                 </div>
 
-                {/* Right Sidebar - Timeline (Desktop only, mobile shows at top) */}
+
                 <div className="hidden lg:block w-80 flex-shrink-0">
                     <ProjectTimeline
                         currentLevelId={levelConfig.id}
@@ -245,7 +245,7 @@ const QuestLevel = ({ levelConfig, onNext, onBack, isFirst, isLast, onSave, save
                 </div>
             </div>
 
-            {/* Research Result Modal */}
+
             {researchReport && (
                 <ResearchResult
                     report={researchReport}

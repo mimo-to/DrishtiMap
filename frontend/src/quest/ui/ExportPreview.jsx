@@ -4,19 +4,11 @@ import Button from '../../components/ui/Button';
 import { LEVELS } from '../config/levels';
 import { ExportService } from '../../services/export.service';
 
-/**
- * ExportPreview
- * Mandatory pre-export step to validate quality and confirm content.
- * 
- * Logic:
- * - Calculates Quality Score (0-100) based on completion.
- * - Generates Warnings for empty or short fields.
- * - Shows Read-Only preview of all content.
- */
+
 const ExportPreview = ({ isOpen, onClose, answers, exportType }) => {
     if (!isOpen) return null;
 
-    // --- LOGIC: Validation & Scoring ---
+
     const { score, warnings, content } = useMemo(() => {
         let totalQuestions = 0;
         let answeredQuestions = 0;
@@ -36,7 +28,7 @@ const ExportPreview = ({ isOpen, onClose, answers, exportType }) => {
 
                 if (isAnswered) {
                     answeredQuestions++;
-                    // Check for quality (Volume)
+
                     if (ans.length < 40) {
                         warningsList.push({
                             level: level.title,
@@ -45,7 +37,7 @@ const ExportPreview = ({ isOpen, onClose, answers, exportType }) => {
                         });
                     }
                 } else {
-                    // Check for completion
+
                     warningsList.push({
                         level: level.title,
                         question: q.prompt,
@@ -68,7 +60,7 @@ const ExportPreview = ({ isOpen, onClose, answers, exportType }) => {
         return { score: calculatedScore, warnings: warningsList, content: contentList };
     }, [answers]);
 
-    // --- ACTIONS ---
+
     const handleConfirm = () => {
         const result = ExportService.exportProject(exportType, answers);
         if (!result.success) {
@@ -77,12 +69,12 @@ const ExportPreview = ({ isOpen, onClose, answers, exportType }) => {
         onClose();
     };
 
-    // --- RENDER ---
+
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 backdrop-blur-sm">
             <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
 
-                {/* HEAD: Version & Title */}
+
                 <div className="bg-stone-50 border-b border-stone-100 p-6 flex justify-between items-center">
                     <div>
                         <h2 className="text-xl font-bold text-gray-800">Review Before Export</h2>
@@ -90,7 +82,7 @@ const ExportPreview = ({ isOpen, onClose, answers, exportType }) => {
                             DrishtiMap v1.0 | {new Date().toLocaleString()}
                         </div>
                     </div>
-                    {/* Quality Score Badge */}
+
                     <div className="flex flex-col items-end">
                         <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">
                             Quality Score
@@ -104,10 +96,10 @@ const ExportPreview = ({ isOpen, onClose, answers, exportType }) => {
                     </div>
                 </div>
 
-                {/* BODY: Scrollable Review */}
+
                 <div className="flex-1 overflow-y-auto p-6 space-y-6">
 
-                    {/* Warnings Section */}
+
                     {warnings.length > 0 && (
                         <div className="bg-orange-50 border border-orange-100 rounded-lg p-4 mb-6">
                             <h4 className="text-sm font-bold text-orange-800 mb-2 flex items-center gap-2">
@@ -125,7 +117,7 @@ const ExportPreview = ({ isOpen, onClose, answers, exportType }) => {
                         </div>
                     )}
 
-                    {/* Content Preview */}
+
                     <div className="space-y-8">
                         {content.map((level, lIdx) => (
                             <div key={lIdx}>
@@ -152,7 +144,7 @@ const ExportPreview = ({ isOpen, onClose, answers, exportType }) => {
                     </div>
                 </div>
 
-                {/* FOOTER: Actions */}
+
                 <div className="p-6 border-t border-gray-100 flex justify-end gap-3 bg-white">
                     <Button variant="secondary" onClick={onClose}>
                         Back to Edit

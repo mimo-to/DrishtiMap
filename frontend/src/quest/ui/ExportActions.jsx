@@ -6,24 +6,23 @@ import ExportPreview from './ExportPreview';
 import { Download, FileText, RefreshCw, Sparkles, Check } from 'lucide-react';
 
 const ExportActions = ({ onSave, saveStatus, isSaving, onResearch, isResearching, savedResearch, onViewResearch }) => {
-    // Read-only access to full answers state
+
     const { answers, projects, currentProjectId } = useQuestStore();
-    const [previewType, setPreviewType] = useState(null); // 'json' | 'pdf' | null
+    const [previewType, setPreviewType] = useState(null);
 
     const handleExportClick = (type) => {
-        // Quick check before opening modal
+
         if (!answers || Object.keys(answers).length === 0) {
             alert("Nothing to export yet. Please answer some questions first.");
             return;
         }
 
-        // Check for basic validation - primitive "Warning"
-        const hasMissing = Object.values(answers).some(a => !a) || Object.keys(answers).length < 5; // Arbitrary 5 check
+        const hasMissing = Object.values(answers).some(a => !a) || Object.keys(answers).length < 5;
         if (hasMissing && !window.confirm("Some questions are not answered. working draft?")) {
             return;
         }
 
-        // Derive Title
+
         const currentProject = projects.find(p => p._id === currentProjectId);
         const projectTitle = currentProject?.title || "DrishtiMap Project";
 
@@ -36,9 +35,9 @@ const ExportActions = ({ onSave, saveStatus, isSaving, onResearch, isResearching
                 Project Actions
             </h3>
 
-            {/* Mobile: Stack everything vertically */}
+
             <div className="flex flex-col gap-2 sm:hidden">
-                {/* Export JSON */}
+
                 <Button
                     variant="outline"
                     onClick={() => handleExportClick('json')}
@@ -48,7 +47,7 @@ const ExportActions = ({ onSave, saveStatus, isSaving, onResearch, isResearching
                     Export JSON
                 </Button>
 
-                {/* Review Deck (if exists) */}
+
                 {savedResearch && (
                     <Button
                         variant="outline"
@@ -60,7 +59,7 @@ const ExportActions = ({ onSave, saveStatus, isSaving, onResearch, isResearching
                     </Button>
                 )}
 
-                {/* Research/Regenerate */}
+
                 <Button
                     onClick={onResearch}
                     disabled={isResearching || isSaving}
@@ -75,7 +74,7 @@ const ExportActions = ({ onSave, saveStatus, isSaving, onResearch, isResearching
                     )}
                 </Button>
 
-                {/* Save Progress */}
+
                 <Button
                     variant={saveStatus === 'saved' ? 'secondary' : 'primary'}
                     onClick={onSave}
@@ -85,11 +84,11 @@ const ExportActions = ({ onSave, saveStatus, isSaving, onResearch, isResearching
                     {isSaving ? 'Saving...' : saveStatus === 'saved' ? '✓ Saved' : 'Save Progress'}
                 </Button>
 
-                {/* Status */}
+
                 {saveStatus === 'error' && <span className="text-red-600 text-xs text-center">Save failed</span>}
             </div>
 
-            {/* Desktop: Horizontal layout */}
+
             <div className="hidden sm:flex justify-between items-center">
                 <div className="flex gap-2">
                     <Button
@@ -142,7 +141,7 @@ const ExportActions = ({ onSave, saveStatus, isSaving, onResearch, isResearching
                 </div>
             </div>
 
-            {/* PREVIEW MODAL */}
+
             <ExportPreview
                 isOpen={!!previewType}
                 onClose={() => setPreviewType(null)}

@@ -1,8 +1,3 @@
-/**
- * Level Configuration
- * Source of truth for Level Metadata and Question Definitions.
- * Declarative only. No logic.
- */
 
 export const LEVELS = [
   {
@@ -21,7 +16,7 @@ export const LEVELS = [
       {
         id: 'q1_stakeholders',
         key: 'stakeholders',
-        type: 'text', // Simple list for now
+        type: 'text',
         prompt: 'Who are the key stakeholders?',
         helpText: 'List the main groups involved (comma separated for now).',
         validation: { required: true }

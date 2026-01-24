@@ -11,13 +11,13 @@ const Dashboard = () => {
     const navigate = useNavigate();
     const { projects, loadProjects, resetStore, loadProject, deleteProject, updateProjectTitle, isLoading, saveProject } = useQuestStore();
 
-    // UI State
+
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [projectToDelete, setProjectToDelete] = useState(null);
     const [editingProjectId, setEditingProjectId] = useState(null);
     const [editTitle, setEditTitle] = useState('');
 
-    // New Project State
+
     const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
     const [newProjectTitle, setNewProjectTitle] = useState('');
 
@@ -31,9 +31,7 @@ const Dashboard = () => {
         fetchProjects();
     }, [userId, getToken, loadProjects]);
 
-    // --- Actions ---
 
-    // 1. New Project
     const handleStartNewProject = () => {
         setNewProjectTitle('');
         setIsNewProjectModalOpen(true);
@@ -51,14 +49,12 @@ const Dashboard = () => {
         const result = await saveProject(token, title);
 
         if (result && result.success) {
-            // Navigate to upload page instead of directly to quest
+
             navigate(`/quest/${result.project._id}/upload`);
         }
     };
 
-    // ...
 
-    // 2. Delete Project
     const requestDelete = (project, e) => {
         e.stopPropagation();
         setProjectToDelete(project);
@@ -74,7 +70,7 @@ const Dashboard = () => {
         }
     };
 
-    // 3. Edit Title
+
     const startEditing = (project, e) => {
         e.stopPropagation();
         setEditingProjectId(project._id);
@@ -100,13 +96,13 @@ const Dashboard = () => {
         navigate(`/quest/${projectId}`);
     };
 
-    // --- Render Helpers ---
+
 
     return (
         <div className="min-h-screen bg-stone-50 relative">
             <BackgroundPattern variant="dots" />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
-                {/* Header */}
+
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                     <h1 className="text-3xl sm:text-4xl font-display font-bold text-stone-900">Your Projects</h1>
                     <Button variant="teal" onClick={handleStartNewProject} className="w-full sm:w-auto">
@@ -116,7 +112,7 @@ const Dashboard = () => {
                     </Button>
                 </div>
 
-                {/* List */}
+
                 {isLoading && projects.length === 0 ? (
                     <div className="text-center py-12">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-700 mx-auto"></div>
@@ -156,7 +152,7 @@ const Dashboard = () => {
                                             </h3>
                                         )}
 
-                                        {/* Action Buttons (Visible on Hover or if Editing) */}
+
                                         <div className={`flex items-center space-x-1 ${editingProjectId === project._id ? 'hidden' : 'opacity-0 group-hover:opacity-100 transition-opacity'}`}>
                                             <button
                                                 onClick={(e) => startEditing(project, e)}
@@ -175,7 +171,7 @@ const Dashboard = () => {
                                         </div>
                                     </div>
 
-                                    {/* Progress Bar */}
+
                                     <div className="mt-4">
                                         <div className="flex items-center justify-between mb-2">
                                             <span className="text-xs font-display font-medium text-stone-700">
@@ -193,7 +189,7 @@ const Dashboard = () => {
                                         </div>
                                     </div>
 
-                                    {/* Status Badge */}
+
                                     <div className="mt-4 flex items-center justify-between">
                                         {(() => {
                                             const percent = project.meta?.completionPercent || 0;
@@ -224,9 +220,9 @@ const Dashboard = () => {
                     </div>
                 )}
 
-                {/* --- Modals --- */}
 
-                {/* Delete Confirmation Modal */}
+
+
                 {isDeleteModalOpen && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
                         <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 animate-fade-in-up">
@@ -255,7 +251,7 @@ const Dashboard = () => {
                     </div>
                 )}
 
-                {/* New Project Modal */}
+
                 {isNewProjectModalOpen && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
                         <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 animate-fade-in-up">

@@ -12,7 +12,7 @@ const Home = () => {
 
     return (
         <div className="flex flex-col min-h-screen">
-            {/* Header */}
+
             <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-stone-200">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
                     <Link to="/" className="font-display font-bold text-2xl text-stone-900">
@@ -42,7 +42,7 @@ const Home = () => {
                 </div>
             </header>
 
-            {/* Hero Section */}
+
             <section className="relative min-h-screen flex items-center">
                 <BackgroundPattern variant="mesh" />
                 <div className="container mx-auto px-6">
@@ -77,7 +77,7 @@ const Home = () => {
                 </div>
             </section>
 
-            {/* Features Section */}
+
             <section className="py-20 bg-stone-50">
                 <div className="container mx-auto px-6">
                     <h2 className="font-display text-3xl sm:text-4xl font-bold text-stone-900 mb-4 text-center">
@@ -127,7 +127,7 @@ const Home = () => {
                 </div>
             </section>
 
-            {/* CTA Section */}
+
             <section className="relative py-20">
                 <BackgroundPattern variant="grain" />
                 <div className="container mx-auto px-6 text-center">
@@ -145,7 +145,7 @@ const Home = () => {
                 </div>
             </section>
 
-            {/* Footer */}
+
             <footer className="bg-stone-100 border-t border-stone-200">
                 <div className="container mx-auto px-6 py-8">
                     <div className="text-center">

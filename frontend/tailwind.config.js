@@ -1,4 +1,4 @@
-/** @type {import('tailwindcss').Config} */
+
 import colors from 'tailwindcss/colors';
 
 export default {
@@ -14,7 +14,7 @@ export default {
         mono: ['JetBrains Mono', 'Courier New', 'monospace']
       },
       colors: {
-        // Use Tailwind's built-in colors for consistency
+
         stone: colors.stone,
         teal: colors.teal,
         yellow: colors.yellow,
@@ -22,7 +22,7 @@ export default {
         orange: colors.orange,
         red: colors.red,
         
-        // Custom semantic colors mapped to CSS variables
+
         'bg-primary': 'var(--color-bg-primary)',
         'bg-secondary': 'var(--color-bg-secondary)',
         'text-primary': 'var(--color-text-primary)',

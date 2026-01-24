@@ -1,10 +1,9 @@
 import React from 'react';
 import { Bot, Check, Sparkles, AlertCircle } from 'lucide-react';
-import Card from '../../components/ui/Card'; // Or just use div for sub-cards
+import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 
 const SuggestionCard = ({ suggestion, isSelected, onToggle }) => {
-    // Normalizer helper
     const normalize = (val) => {
         if (!val) return 'N/A';
         const v = val.toLowerCase();
@@ -28,10 +27,8 @@ const SuggestionCard = ({ suggestion, isSelected, onToggle }) => {
                     : 'bg-white border-stone-200 hover:border-teal-300 hover:shadow-sm'}
             `}
         >
-            {/* Header: Title & Checkbox */}
             <div className="flex justify-between items-start mb-2">
                 <div className="pr-6">
-                    {/* Primary Tag */}
                     <span className="inline-block text-[10px] font-bold font-display text-teal-700 bg-teal-50 px-2 py-0.5 rounded mb-1.5 border border-teal-100 tracking-wide">
                         {tag.toUpperCase()}
                     </span>
@@ -52,7 +49,6 @@ const SuggestionCard = ({ suggestion, isSelected, onToggle }) => {
                 {suggestion.description}
             </p>
 
-            {/* Metrics */}
             <div className="flex flex-wrap gap-2 mb-3 mt-auto">
                 <span className={`px-2 py-1 text-[10px] rounded font-medium border ${impact === 'High' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-gray-50 text-gray-600 border-gray-200'}`}>
                     Impact: <strong>{impact}</strong>
@@ -62,7 +58,6 @@ const SuggestionCard = ({ suggestion, isSelected, onToggle }) => {
                 </span>
             </div>
 
-            {/* Stakeholders (Defensive) */}
             {Array.isArray(suggestion.stakeholders) && suggestion.stakeholders.length > 0 && (
                 <div className="pt-3 border-t border-gray-100/50">
                     <p className="text-[10px] text-gray-400 uppercase font-bold mb-1">Affected Stakeholders</p>
@@ -87,12 +82,8 @@ const AISuggestionsPanel = ({
     isLoading,
     error
 }) => {
-
-    // Visibility logic moved inline
-
     return (
         <div className="mt-8 space-y-4 animate-fade-in">
-            {/* Header */}
             <div className="flex justify-between items-end">
                 <div>
                     <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2">
@@ -115,7 +106,6 @@ const AISuggestionsPanel = ({
                 )}
             </div>
 
-            {/* Error State */}
             {error && (
                 <div className="bg-red-50 text-red-600 p-4 rounded text-sm border border-red-100 flex items-center gap-2">
                     <AlertCircle className="w-4 h-4" />
@@ -123,14 +113,12 @@ const AISuggestionsPanel = ({
                 </div>
             )}
 
-            {/* Empty State */}
             {!isLoading && !error && (!suggestions || suggestions.length === 0) && (
                 <div className="text-center p-8 border-2 border-dashed border-gray-200 rounded-lg text-gray-400 text-sm">
                     No suggestions generated. Try refining your input or waiting a moment.
                 </div>
             )}
 
-            {/* Loading Skeileton */}
             {isLoading && (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {[1, 2, 3].map(i => (
@@ -139,14 +127,9 @@ const AISuggestionsPanel = ({
                 </div>
             )}
 
-            {/* Results Grid - Horizontal Layout (3 cols) */}
             {!isLoading && suggestions && suggestions.length > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {suggestions.map((s, idx) => {
-                        // Debugging per User Request
-                        console.log(`[Panel Render] Suggestion ${idx}:`, s);
-
-                        // Safe ID fallback
                         const safeId = s.id || `sugg-${idx}`;
                         const isSelected = selectedItems.some(item => item.id === safeId);
 

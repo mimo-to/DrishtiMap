@@ -9,12 +9,10 @@ export const Navbar = () => {
         <nav className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-stone-200">
             <div className="container mx-auto px-6 py-4">
                 <div className="flex items-center justify-between">
-                    {/* Logo */}
                     <a href="/" className="text-2xl font-display font-bold text-teal-900">
                         DrishtiMap
                     </a>
 
-                    {/* Desktop Nav */}
                     <div className="hidden md:flex items-center gap-8">
                         <a href="/features" className="text-stone-700 hover:text-teal-700 transition-colors font-display">
                             Features
@@ -25,7 +23,6 @@ export const Navbar = () => {
                         <Button variant="primary" size="sm">Get Started</Button>
                     </div>
 
-                    {/* Mobile Menu Button */}
                     <button
                         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                         className="md:hidden p-2 hover:bg-stone-100 rounded-lg transition-colors"
@@ -36,7 +33,6 @@ export const Navbar = () => {
                 </div>
             </div>
 
-            {/* Mobile Menu */}
             <div className={`
         fixed inset-y-0 right-0 w-64 bg-white shadow-2xl
         transform transition-transform duration-300 ease-[var(--ease-smooth)]

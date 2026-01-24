@@ -7,7 +7,7 @@ const ProtectedRoute = () => {
     const location = useLocation();
 
     if (!isLoaded) {
-        // Simple loading spinner or null
+
         return (
             <div className="flex items-center justify-center min-h-screen">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-700"></div>
@@ -16,7 +16,7 @@ const ProtectedRoute = () => {
     }
 
     if (!userId) {
-        // Redirect to signin, preserving the attempted location
+
         return <Navigate to="/signin" state={{ from: location }} replace />;
     }
 
