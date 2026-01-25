@@ -1,7 +1,3 @@
-/**
- * Response Time Middleware
- * Logs the time taken for each API request
- */
 const responseTime = (req, res, next) => {
   const start = Date.now();
   

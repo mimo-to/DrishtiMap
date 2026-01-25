@@ -9,17 +9,14 @@ const aiSuggestionSchema = new mongoose.Schema({
   section: {
     type: String,
     required: true
-    // e.g., 'context.problemStatement'
   },
   promptType: {
     type: String,
     required: true
-    // e.g., 'problem_refinement_v1'
   },
   suggestion: {
     type: mongoose.Schema.Types.Mixed,
     required: true
-    // Can be a string or object depending on section
   },
   status: {
     type: String,

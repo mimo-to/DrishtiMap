@@ -4,9 +4,8 @@ const aiService = require('../services/ai/ai.service');
 async function suggest(req, res) {
   try {
     const { context, promptId, input } = req.body;
+    const { userId } = req.auth;
     
-
-    const { userId } = req.auth; 
 
     if (!promptId || !input) {
       return res.status(400).json({ error: "Missing promptId or input" });

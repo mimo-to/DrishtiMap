@@ -9,7 +9,6 @@ const errorHandler = (err, req, res, next) => {
   
   res.status(statusCode);
   
-  // Console logging only (no external files)
   console.error(`[Error] ${err.message}`);
   if (process.env.NODE_ENV !== 'production') {
     console.error(err.stack);

@@ -151,6 +151,7 @@ const analyzeUrl = async (url) => {
     try {
         console.log('Fetching URL content...');
         
+        const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000);
         
         const response = await fetch(url, {

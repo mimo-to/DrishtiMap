@@ -8,7 +8,6 @@ router.post('/suggest', clerkAuth, aiController.suggest);
 
 const researchService = require('../services/ai/research.service');
 
-
 router.post('/research', clerkAuth, async (req, res) => {
     try {
         const { userId } = req.auth;
@@ -18,9 +17,16 @@ router.post('/research', clerkAuth, async (req, res) => {
             return res.status(400).json({ success: false, error: "ProjectId is required" });
         }
 
-        const report = await researchService.generateResearchReport(projectId, userId);
+        const result = await researchService.generateResearchReport(projectId, userId);
         
-        res.json({ success: true, report });
+        res.json({ 
+            success: true, 
+            report: result.reportMarkdown || result,
+            metadata: {
+                generatedAt: result.generatedAt,
+                diagramCount: result.diagramCount
+            }
+        });
 
     } catch (error) {
         console.error("Research Route Error:", error);

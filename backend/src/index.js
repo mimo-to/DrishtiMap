@@ -6,36 +6,27 @@ const connectDB = require('./config/db');
 const { notFound, errorHandler } = require('./middleware/error.middleware');
 const responseTime = require('./middleware/responseTime.middleware');
 
-// Load env vars
 dotenv.config();
 
-// Initialize App
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// 1. Security Headers
 app.use(helmet());
 
-// 2. CORS
 app.use(cors());
 
-// 3. Body Parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 4. Logging (Dev only)
 if (process.env.NODE_ENV !== 'production') {
   const morgan = require('morgan');
   app.use(morgan('dev'));
 }
 
-// 5. Response Time Monitoring
 app.use(responseTime);
 
-// Connect to Database
 connectDB();
 
-// 5. Routes
 app.get('/health', (req, res) => {
   res.status(200).json({
     status: 'ok',
@@ -45,14 +36,11 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API Routes
 app.use('/api', require('./routes/index'));
 
-// 6. Error Handling
 app.use(notFound);
 app.use(errorHandler);
 
-// Start Server
 app.listen(PORT, () => {
   console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
 });
