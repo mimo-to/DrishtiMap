@@ -1,174 +1,44 @@
 # DrishtiMap
 
-A strategic project planning and AI-powered research platform designed to help organizations and individuals develop comprehensive project strategies with intelligent insights.
+A strategic project planning platform that transforms your ideas into structured, actionable frameworks using the Logical Framework Approach (LFA). DrishtiMap combines an intuitive questionnaire flow with AI-powered suggestions and generates comprehensive research reports complete with visual diagrams.
 
-## Overview
+---
 
-DrishtiMap guides users through a structured 5-level quest system to define, plan, and strategize projects. It leverages dual-AI architecture (Groq + Gemini) to provide intelligent suggestions and generate comprehensive research reports with visual diagrams.
+## What It Does
 
-## Features
+DrishtiMap guides you through a five-level process to design development projects, social initiatives, or grant proposals:
 
-### Core Functionality
-- **5-Level Quest System**: Structured approach to project planning
-  - Level 1: Context - Define the problem and stakeholders
-  - Level 2: Vision - Set goals and success metrics
-  - Level 3: Strategy - Plan approach and resources
-  - Level 4: Execution - Timeline and milestones
-  - Level 5: Impact - Measure outcomes and sustainability
+1. **Context** – Define the problem and identify stakeholders.  
+2. **Strategy** – Set your impact goals and desired outcomes.  
+3. **Operation** – Plan activities and resource allocation.  
+4. **Measure** – Establish KPIs and success indicators.  
+5. **Logic Check** – Review assumptions and risks.
 
-- **AI-Powered Assistance**
-  - Intelligent suggestions for each question
-  - Context-aware recommendations
-  - Dual-AI architecture for deep research
+At each level, an AI co-pilot suggests ideas tailored to your inputs. Once the framework is complete, you can generate a visual research report with Mermaid diagrams, stakeholder maps, timelines, and more.
 
-- **Research Report Generation**
-  - Comprehensive strategic impact reports
-  - 8+ Mermaid diagrams for visualization
-  - PDF export functionality
-  - Anti-hallucination safeguards
+---
 
-- **Project Management**
-  - Auto-save functionality
-  - Project persistence
-  - Timeline visualization
-  - Progress tracking
+## Key Features
 
-### Technical Features
-- User authentication via Clerk
-- MongoDB database for data persistence
-- RESTful API architecture
-- Responsive React frontend
-- Performance-optimized bundle (code splitting)
+- **Guided LFA Workflow** – Step-by-step questionnaire that collects project details.
+- **AI Suggestions** – Gemini-powered recommendations for goals, activities, and KPIs.
+- **Document & URL Analysis** – Upload PDFs/images or paste article links to auto-extract project context.
+- **Visual Research Reports** – Auto-generated markdown reports with 10+ Mermaid diagrams.
+- **Project Dashboard** – Save, rename, and manage multiple projects.
+- **Export Options** – Download your framework as JSON or PDF.
+
+---
 
 ## Tech Stack
 
-### Frontend
-- React 18
-- Vite
-- React Router v6
-- Zustand (state management)
-- Tailwind CSS
-- Clerk (authentication)
-- Mermaid.js (diagrams)
-- html2pdf.js (PDF generation)
+| Layer      | Technology                                      |
+|------------|-------------------------------------------------|
+| Frontend   | React 18, Vite, Tailwind CSS, Zustand           |
+| Backend    | Node.js, Express, MongoDB (Mongoose)            |
+| Auth       | Clerk                                           |
+| AI         | Google Gemini (primary), Groq/Llama (research)  |
 
-### Backend
-- Node.js
-- Express.js
-- MongoDB + Mongoose
-- Clerk SDK (authentication)
-- Google Gemini AI
-- Groq AI
-- Helmet (security)
-- CORS
-
-## Prerequisites
-
-- Node.js 18+ and npm
-- MongoDB Atlas account (or local MongoDB)
-- Clerk account (for authentication)
-- Google Cloud account (for Gemini API)
-- Groq account (for Groq API)
-
-## Installation
-
-### 1. Clone the repository
-```bash
-git clone <repository-url>
-cd drishtimap
-```
-
-### 2. Backend Setup
-```bash
-cd backend
-npm install
-```
-
-Create `.env` file in backend directory (use `.env.example` as template):
-```bash
-cp .env.example .env
-```
-
-Configure your `.env` file with:
-- MongoDB connection string
-- Clerk API keys
-- Google Gemini API key
-- Groq API key
-
-### 3. Frontend Setup
-```bash
-cd frontend
-npm install
-```
-
-Create `.env` file in frontend directory (use `.env.example` as template):
-```bash
-cp .env.example .env
-```
-
-Configure your `.env` file with:
-- Backend API URL
-- Clerk publishable key
-
-## Running Locally
-
-### Start Backend
-```bash
-cd backend
-npm run dev
-```
-Backend will run on `http://localhost:5000`
-
-### Start Frontend
-```bash
-cd frontend
-npm run dev
-```
-Frontend will run on `http://localhost:5173`
-
-## Building for Production
-
-### Frontend
-```bash
-cd frontend
-npm run build
-```
-Production build will be in `frontend/dist/`
-
-### Backend
-```bash
-cd backend
-npm start
-```
-
-## Environment Variables
-
-### Backend (.env)
-```
-NODE_ENV=development|production
-PORT=5000
-MONGODB_URI=your_mongodb_connection_string
-CLERK_SECRET_KEY=your_clerk_secret_key
-GOOGLE_API_KEY=your_gemini_api_key
-GROQ_API_KEY=your_groq_api_key
-ENABLE_AI=true
-FRONTEND_URL=your_frontend_url
-```
-
-### Frontend (.env)
-```
-VITE_API_URL=your_backend_api_url
-VITE_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
-VITE_ENV=development|production
-```
-
-## API Documentation
-
-See [API_DOCUMENTATION.md](./API_DOCUMENTATION.md) for detailed API endpoints and usage.
-
-## Deployment
-
-See [DEPLOYMENT.md](./DEPLOYMENT.md) for step-by-step deployment instructions for various platforms.
+---
 
 ## Project Structure
 
@@ -176,86 +46,68 @@ See [DEPLOYMENT.md](./DEPLOYMENT.md) for step-by-step deployment instructions fo
 drishtimap/
 ├── backend/
 │   ├── src/
-│   │   ├── config/          # Configuration files
-│   │   ├── controllers/     # Route controllers
-│   │   ├── middleware/      # Express middleware
-│   │   ├── models/          # Mongoose models
-│   │   ├── routes/          # API routes
-│   │   ├── services/        # Business logic & AI services
-│   │   └── index.js         # Entry point
-│   ├── .env.example
+│   │   ├── config/         # Database & AI configuration
+│   │   ├── controllers/    # Route handlers
+│   │   ├── middleware/     # Auth, rate-limit, uploads
+│   │   ├── models/         # Mongoose schemas
+│   │   ├── routes/         # API endpoints
+│   │   ├── services/ai/    # AI prompt logic & research
+│   │   └── index.js        # Server entry point
 │   └── package.json
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── components/      # Reusable components
-│   │   ├── pages/           # Page components
-│   │   ├── quest/           # Quest system components
-│   │   ├── services/        # API services
-│   │   ├── store/           # State management
-│   │   └── main.jsx         # Entry point
-│   ├── .env.example
+│   │   ├── components/     # Reusable UI components
+│   │   ├── pages/          # Route pages (Dashboard, Quest, etc.)
+│   │   ├── quest/          # LFA engine, levels config, UI
+│   │   ├── services/       # API service wrappers
+│   │   └── styles/         # CSS variables, typography, animations
 │   └── package.json
 │
-├── .gitignore
 └── README.md
 ```
 
-## Key Features Explained
+---
 
-### Dual-AI Architecture
-- **Phase 1 (Groq)**: Deep research and analysis
-- **Phase 2 (Gemini)**: Visual synthesis and report generation
-- Anti-hallucination rules for factual accuracy
+## Quick Start
 
-### Quest System
-- Structured 5-level approach
-- Context-aware AI suggestions
-- Progress tracking and auto-save
-- Jump between levels
+Detailed setup instructions are available in [`SETUP.md`](./SETUP.md). Here's the summary:
 
-### Research Reports
-- Comprehensive strategic analysis
-- Multiple Mermaid diagram types
-- Government sources and references
-- PDF export with dynamic filenames
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/drishtimap.git
+cd drishtimap
 
-## Security
+# Install dependencies
+cd backend && npm install
+cd ../frontend && npm install
 
-- Environment variables for sensitive data
-- Clerk authentication
-- Helmet.js security headers
-- CORS configuration
-- MongoDB connection encryption
+# Configure environment variables (see SETUP.md)
 
-## Performance Optimizations
+# Run development servers
+# Terminal 1 (backend)
+cd backend && npm run dev
 
-- Code splitting for heavy libraries (Mermaid, html2pdf)
-- Dynamic imports for AI libraries
-- Manual chunking in Vite
-- Optimized bundle size (~1.5MB)
+# Terminal 2 (frontend)
+cd frontend && npm run dev
+```
 
-## Known Limitations
+Open [http://localhost:5173](http://localhost:5173) in your browser.
 
-- AI features require active API keys
-- Research reports limited to last 90 days of data
-- Mermaid diagrams have syntax constraints
+---
 
-## Contributing
+## Environment Variables
 
-This is a hackathon project. For contributions, please follow standard Git workflow.
+The application requires configuration for the database, authentication, and AI services. See the `.env.example` files in both `/backend` and `/frontend` directories, or refer to [`SETUP.md`](./SETUP.md) for a complete breakdown.
+
+---
 
 ## License
 
-MIT License
+This project is proprietary. All rights reserved.
 
-## Support
+---
 
-For issues or questions, please open an issue in the repository.
+## Contributing
 
-## Acknowledgments
-
-- Built with React and Express
-- AI powered by Google Gemini and Groq
-- Authentication by Clerk
-- Diagrams by Mermaid.js
+Contributions are not currently accepted as this is a private project. If you have feedback or questions, please reach out directly.

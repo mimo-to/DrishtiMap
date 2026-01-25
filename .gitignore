@@ -31,12 +31,4 @@ lerna-debug.log*
 .idea/
 .vscode/
 
-# Large files
 
-# User Requested Ignores
-Sikshalaksham/
-API_DOCUMENTATION.md
-DEPLOYMENT.md
-frontendsetup.txt
-QWEN.md
-TESTING.md 

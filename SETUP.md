@@ -1,254 +1,199 @@
-# DrishtiMap - Quick Setup Guide for Collaborators
+# DrishtiMap – Setup Guide
+
+This guide walks you through setting up DrishtiMap for local development. By the end, you'll have both the backend API and frontend application running on your machine.
+
+---
 
 ## Prerequisites
 
-Before you start, make sure you have:
-- Node.js 18+ installed ([Download here](https://nodejs.org/))
-- Git installed
-- A code editor (VS Code recommended)
+Before you begin, make sure you have the following installed:
 
-## Step 1: Clone the Repository
+- **Node.js** v18 or higher  
+- **npm** v9 or higher  
+- **MongoDB** – Either a local instance or a cloud cluster (MongoDB Atlas recommended)  
+- **Git**
+
+You'll also need accounts for:
+
+- [Clerk](https://clerk.com) – Authentication  
+- [Google AI Studio](https://makersuite.google.com/app/apikey) – Gemini API key  
+- [Groq](https://console.groq.com) (optional) – For enhanced research reports  
+
+---
+
+## 1. Clone the Repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/yourusername/drishtimap.git
 cd drishtimap
 ```
 
-## Step 2: Install Dependencies
+---
 
-### Backend
+## 2. Backend Setup
+
+Navigate to the backend directory:
+
 ```bash
 cd backend
+```
+
+### Install Dependencies
+
+```bash
 npm install
 ```
 
-### Frontend
+### Configure Environment Variables
+
+Create a `.env` file based on the example:
+
 ```bash
-cd frontend
-npm install
-```
-
-## Step 3: Set Up Environment Variables
-
-### Backend Setup
-
-1. Copy the example file:
-```bash
-cd backend
 cp .env.example .env
 ```
 
-2. Edit `backend/.env` and fill in these values:
+Open `.env` and fill in the values:
 
 ```env
-# Get these from the team lead or project owner
-MONGODB_URI=<ask_team_lead>
-CLERK_SECRET_KEY=<ask_team_lead>
-GOOGLE_API_KEY=<ask_team_lead>
-GROQ_API_KEY=<ask_team_lead>
-
-# These can stay as-is for development
+# Server
 NODE_ENV=development
 PORT=5000
+API_VERSION=v1
+
+# Database
+MONGODB_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/drishtimap
+
+# AI Services
+GOOGLE_API_KEY=your_gemini_api_key
 ENABLE_AI=true
+GEMINI_MODEL=gemini-2.5-flash
+
+GROQ_API_KEY=your_groq_api_key
+ENABLE_GROQ=true
+GROQ_MODEL=llama-3.3-70b-versatile
+
+# CORS
 FRONTEND_URL=http://localhost:5173
+
+# Clerk Authentication
+CLERK_PUBLISHABLE_KEY=pk_test_xxxxx
+CLERK_SECRET_KEY=sk_test_xxxxx
 ```
 
-### Frontend Setup
+**Where to get the keys:**
 
-1. Copy the example file:
+| Variable               | Source                                                |
+|------------------------|-------------------------------------------------------|
+| `MONGODB_URI`          | MongoDB Atlas → Database → Connect → Drivers          |
+| `GOOGLE_API_KEY`       | Google AI Studio → Get API Key                        |
+| `GROQ_API_KEY`         | Groq Console → API Keys                               |
+| `CLERK_PUBLISHABLE_KEY`| Clerk Dashboard → Your App → API Keys                 |
+| `CLERK_SECRET_KEY`     | Clerk Dashboard → Your App → API Keys                 |
+
+### Seed Default Templates (Optional)
+
+If you want pre-built LFA templates:
+
+```bash
+node src/scripts/seed.js
+```
+
+### Start the Backend
+
+```bash
+npm run dev
+```
+
+The API will be available at `http://localhost:5000`.
+
+---
+
+## 3. Frontend Setup
+
+Open a new terminal window and navigate to the frontend directory:
+
 ```bash
 cd frontend
+```
+
+### Install Dependencies
+
+```bash
+npm install
+```
+
+### Configure Environment Variables
+
+Create a `.env` file:
+
+```bash
 cp .env.example .env
 ```
 
-2. Edit `frontend/.env` and fill in:
+Fill in the values:
 
 ```env
-# Get this from team lead
-VITE_CLERK_PUBLISHABLE_KEY=<ask_team_lead>
-
-# These should work as-is
-VITE_API_URL=http://localhost:5000/api
+VITE_API_URL=http://localhost:5000/api/v1
 VITE_ENV=development
-VITE_APP_NAME=drishtimap
+VITE_AI_ENABLED=true
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_xxxxx
 ```
 
-## Step 4: Run the Application
+> **Note:** `VITE_CLERK_PUBLISHABLE_KEY` should match `CLERK_PUBLISHABLE_KEY` from the backend.
 
-Open **two terminal windows**:
+### Start the Frontend
 
-### Terminal 1 - Backend
 ```bash
-cd backend
 npm run dev
 ```
 
-You should see:
-```
-[AI Config] Success: Gemini initialized
-[AI Config] Success: Groq initialized
-Server running in development mode on port 5000
-MongoDB Connected
-```
+The application will be available at `http://localhost:5173`.
 
-### Terminal 2 - Frontend
-```bash
-cd frontend
-npm run dev
-```
+---
 
-You should see:
-```
-VITE ready in XXX ms
-Local: http://localhost:5173/
-```
+## 4. Verify the Setup
 
-## Step 5: Open the App
+1. Open [http://localhost:5173](http://localhost:5173) in your browser.  
+2. Sign up or sign in using Clerk.  
+3. Create a new project from the dashboard.  
+4. Fill in the questionnaire and click **Get Suggestion** to test AI integration.  
+5. Complete all levels and click **Finalize & Research** to generate a visual report.
 
-Open your browser and go to: **http://localhost:5173**
+If everything works, you're all set!
 
-## Common Issues & Solutions
+---
 
-### Issue: "Port 5000 already in use"
-**Solution:**
-```bash
-# Windows
-Get-NetTCPConnection -LocalPort 5000 | Select-Object -ExpandProperty OwningProcess | ForEach-Object { Stop-Process -Id $_ -Force }
+## Common Issues
 
-# Mac/Linux
-lsof -ti:5000 | xargs kill -9
-```
+### "AI Error: userId is not defined"
+The authentication middleware may not be correctly passing the user ID. Ensure `CLERK_SECRET_KEY` is correctly set in the backend `.env`.
 
-### Issue: "MongoDB connection failed"
-**Solution:** Ask team lead for the correct `MONGODB_URI`
+### "MongoDB connection failed"
+Double-check your `MONGODB_URI`. If using Atlas, ensure your IP address is whitelisted in **Network Access**.
 
-### Issue: "Clerk authentication not working"
-**Solution:** Make sure you have the correct `CLERK_SECRET_KEY` and `VITE_CLERK_PUBLISHABLE_KEY`
+### "Gemini API quota exceeded"
+The free tier has rate limits. Wait a minute before retrying, or upgrade your plan.
 
-### Issue: "AI features not working"
-**Solution:** Verify `GOOGLE_API_KEY` and `GROQ_API_KEY` are set correctly
+### Frontend shows blank page
+Check the browser console for errors. Usually this means `VITE_API_URL` is misconfigured or the backend isn't running.
 
-## Project Structure
+---
 
-```
-drishtimap/
-├── backend/              # Node.js + Express API
-│   ├── src/
-│   │   ├── config/      # Configuration files
-│   │   ├── controllers/ # Route handlers
-│   │   ├── models/      # MongoDB models
-│   │   ├── routes/      # API routes
-│   │   ├── services/    # Business logic & AI
-│   │   └── index.js     # Entry point
-│   └── package.json
-│
-├── frontend/            # React + Vite
-│   ├── src/
-│   │   ├── components/  # Reusable components
-│   │   ├── pages/       # Page components
-│   │   ├── quest/       # Quest system
-│   │   └── services/    # API calls
-│   └── package.json
-│
-└── README.md           # Full documentation
-```
+## Production Deployment
 
-## Development Workflow
+### Backend (Render / Railway / Fly.io)
 
-1. **Pull latest changes**
-   ```bash
-   git pull origin main
-   ```
+1. Push your code to GitHub.  
+2. Create a new Web Service on your platform.  
+3. Set the build command to `npm install` and start command to `npm start`.  
+4. Add all environment variables from `.env`.  
 
-2. **Create a new branch**
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
+### Frontend (Vercel)
 
-3. **Make your changes**
-   - Edit files
-   - Test locally
-   - Commit frequently
+1. Import the `frontend` folder as a new Vercel project.  
+2. Set the root directory to `frontend`.  
+3. Add environment variables (`VITE_API_URL`, `VITE_CLERK_PUBLISHABLE_KEY`).  
+4. Deploy.
 
-4. **Push your changes**
-   ```bash
-   git add .
-   git commit -m "Description of changes"
-   git push origin feature/your-feature-name
-   ```
+> Update `VITE_API_URL` to point to your deployed backend URL (e.g., `https://your-backend.onrender.com/api/v1`).
 
-5. **Create Pull Request**
-   - Go to GitHub
-   - Create PR from your branch to main
-   - Request review from team
-
-## Testing Your Changes
-
-### Test Backend
-```bash
-cd backend
-npm run dev
-# Check http://localhost:5000/health
-```
-
-### Test Frontend
-```bash
-cd frontend
-npm run dev
-# Open http://localhost:5173
-```
-
-### Test Full Flow
-1. Sign in with Clerk
-2. Create a new project
-3. Fill in quest levels
-4. Test AI suggestions
-5. Generate research report
-6. Download PDF
-
-## Need Help?
-
-- **Documentation:** See `README.md` for full details
-- **API Reference:** See `API_DOCUMENTATION.md`
-- **Deployment:** See `DEPLOYMENT.md`
-- **Team Lead:** Contact for API keys and access
-
-## Quick Commands Reference
-
-```bash
-# Install dependencies
-npm install
-
-# Run development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Preview production build
-npm run preview
-```
-
-## Important Notes
-
-1. **Never commit `.env` files** - They contain secrets
-2. **Always pull before starting work** - Avoid merge conflicts
-3. **Test before pushing** - Make sure everything works
-4. **Ask for help** - Don't struggle alone!
-
-## What to Ask Team Lead For
-
-When you join the project, ask for:
-- [ ] MongoDB connection string
-- [ ] Clerk API keys (secret + publishable)
-- [ ] Google Gemini API key
-- [ ] Groq API key
-- [ ] Access to GitHub repository
-- [ ] Access to project management tools
-
-## You're All Set!
-
-Once you see both servers running without errors, you're ready to start developing!
-
-Happy coding! 🚀
